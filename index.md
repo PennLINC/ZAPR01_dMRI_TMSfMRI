@@ -31,15 +31,15 @@ ZAPR01-Healthy Controls
 /storage/vsydnor/ZAPR01_WhiteMatter_TMSfMRI
 
 > $ZAP/Quality_Control : Study QC spreadsheet  
-> $ZAP/qsiprep_0.6.3 : output of QSIPrep  
-> $ZAP/mrtrix_fixelanalysis : output of all mrtrix analyses including subject data (subject_data), templates (population_template), and tract-specific analyses (siteofstim_subcortical_tracts)  
-> $ZAP/sites_of_stim : TMS sites of stimulation coordinates, ROIs, and merged sites of stimulation masks  
+> $ZAP/qsiprep_0.6.3 : QSIPrep output    
+> $ZAP/mrtrix_fixelanalysis : output of all mrtrix-based analyses 
+> $ZAP/sites_of_stim : TMS SOS coordinates, ROIs, masks  
 > $ZAP/templates : templates and ROI masks  
-> $ZAP/output_measures : spreadsheets with all study measures used for statistics  
+> $ZAP/output_measures : spreadsheets with study measures for stats   
 
 
 ### Conference Presentations
-Poster presentation at The Society of Biological Psychiatry Annual Meeting, April 2021. **Amygdala TMS-fMRI Evoked Response is Influenced by Prefrontal-Amygdala White Matter Pathway Fiber Density**
+Poster presentation at The Society of Biological Psychiatry Annual Meeting, April 2021. *Amygdala TMS-fMRI Evoked Response is Influenced by Prefrontal-Amygdala White Matter Pathway Fiber Density*
 
 <br>
 <br>
