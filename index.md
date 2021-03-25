@@ -30,16 +30,16 @@ ZAPR01-Healthy Controls
 ### Path to Data on Filesystem **Dopamine**
 /storage/vsydnor/ZAPR01_WhiteMatter_TMSfMRI
 
-    > $ZAP/Quality_Control : Study QC spreadsheet
-$ZAP/qsiprep_0.6.3 : output of QSIPrep
-$ZAP/mrtrix_fixelanalysis : output of all mrtrix analyses including subject data (subject_data), templates (population_template), and tract-specific analyses (siteofstim_subcortical_tracts)
-$ZAP/sites_of_stim : TMS sites of stimulation coordinates, ROIs, and merged sites of stimulation masks
-$ZAP/templates : templates and ROI masks 
-$ZAP/output_measures : spreadsheets with all study measures used for statistics
+> $ZAP/Quality_Control : Study QC spreadsheet
+> $ZAP/qsiprep_0.6.3 : output of QSIPrep
+> $ZAP/mrtrix_fixelanalysis : output of all mrtrix analyses including subject data (subject_data), templates (population_template), and tract-specific analyses (siteofstim_subcortical_tracts)
+> $ZAP/sites_of_stim : TMS sites of stimulation coordinates, ROIs, and merged sites of stimulation masks
+> $ZAP/templates : templates and ROI masks 
+> $ZAP/output_measures : spreadsheets with all study measures used for statistics
 
 
 ### Conference Presentations
-- Poster presentation at The Society of Biological Psychiatry Annual Meeting, April 2021. *Amygdala TMS-fMRI Evoked Response is Influenced by Prefrontal-Amygdala White Matter Pathway Fiber Density*
+Poster presentation at The Society of Biological Psychiatry Annual Meeting, April 2021. **Amygdala TMS-fMRI Evoked Response is Influenced by Prefrontal-Amygdala White Matter Pathway Fiber Density**
 
 <br>
 <br>
@@ -48,55 +48,55 @@ $ZAP/output_measures : spreadsheets with all study measures used for statistics
 ### Diffusion MRI Preprocessing and Reconstruction
 ZAPR01 diffusion MRI data was BIDSifyed, preprocessed with QSIPrep, and postprocessed with mrtrix’s fixel-based analysis pipeline, as detailed below: 
 
-*Organize Data into BIDS* 
-- ZAPR01 data was organized into the Brain Imaging Data Structure via heudiconv-0.5.4 via the script /bids/ZAP2BIDS.sh. This script both converts data to BIDS and adds IntendedFor specifications to fieldmap jsons. The study-specific heuristic /bids/ZAPR01_legacyandnew_heuristic.py was used for BIDS conversion via the call 
-```bash
-$ sh ZAP2BIDS.sh vsydnor /data/jux/oathes_group/projects/vsydnor/scripts/ZAP2BIDS/ZAPR01_legacyandnew_heuristic.py
-``` 
-*Preprocess Diffusion Data with QSIPrep*
-- The ZAPR01 single shell diffusion data was preprocessed with qsiprep version 0.6.3RC3
-- First, the singularity image qsiprep-0.6.3RC3.simg was built from docker by executing /qsiprep/build_qsiprep_0.6.3.simg.sh
-- QSIPrep was then run via a job array by executing qsiprep/run_qsiprep0.6.3_ZAPR01_DTI.sh. QSIPrep was run with the following parameters:
-```bash
-$ qsiprep-0.6.3RC3.simg --bids_dir $bidsdir --output_dir $qsiprepdir --analysis_level participant --participant_label $SUBJ --hmc_model eddy --eddy-config eddy_params.json --b0-motion-corr-to first --output-space T1w --output-resolution 1.3 --force-spatial-normalization --do-reconall
-```
-*Postprocess Diffusion Data with MrTrix Fixel-Based Analysis Pipeline*
-- The mrtrix fixel-based analysis pipeline was implemented to postprocess the output of qsiprep. This pipeline includes diffusion signal reconstruction via constrained spherical deconvolution, fixel segmentation, and tractography generation. The pipeline generates subject-specific FOD images and a study-specific FOD template, subject-specific fixel images and a study-specific fixel template, and template-based whole-brain tractography. The pipeline includes the relevant steps outlined in https://3tissue.github.io/doc/single-subject.html and https://mrtrix.readthedocs.io/en/latest/fixel_based_analysis/st_fibre_density_cross-section.html and was executed as follows:
+1. *Organize Data into BIDS* 
+   - ZAPR01 data was organized into the Brain Imaging Data Structure via heudiconv-0.5.4 via the script /bids/ZAP2BIDS.sh. This script both converts data to BIDS and adds IntendedFor specifications to fieldmap jsons. The study-specific heuristic /bids/ZAPR01_legacyandnew_heuristic.py was used for BIDS conversion via the call 
+   ```bash
+   $ sh ZAP2BIDS.sh vsydnor /data/jux/oathes_group/projects/vsydnor/scripts/ZAP2BIDS/ZAPR01_legacyandnew_heuristic.py
+   ``` 
+2. *Preprocess Diffusion Data with QSIPrep*
+   - The ZAPR01 single shell diffusion data was preprocessed with qsiprep version 0.6.3RC3
+   - First, the singularity image qsiprep-0.6.3RC3.simg was built from docker by executing /qsiprep/build_qsiprep_0.6.3.simg.sh
+   - QSIPrep was then run via a job array by executing qsiprep/run_qsiprep0.6.3_ZAPR01_DTI.sh. QSIPrep was run with the following parameters:
+   ```bash
+   $ qsiprep-0.6.3RC3.simg --bids_dir $bidsdir --output_dir $qsiprepdir --analysis_level participant --participant_label $SUBJ --hmc_model eddy --eddy-config eddy_params.json --b0-motion-corr-to first --output-space T1w --output-resolution 1.3 --force-spatial-normalization --do-reconall
+   ```
+3. *Postprocess Diffusion Data with MrTrix Fixel-Based Analysis Pipeline*
+   - The mrtrix fixel-based analysis pipeline was implemented to postprocess the output of qsiprep. This pipeline includes diffusion signal reconstruction via constrained spherical deconvolution, fixel segmentation, and tractography generation. The pipeline generates subject-specific FOD images and a study-specific FOD template, subject-specific fixel images and a study-specific fixel template, and template-based whole-brain tractography. The pipeline includes the relevant steps outlined in https://3tissue.github.io/doc/single-subject.html and https://mrtrix.readthedocs.io/en/latest/fixel_based_analysis/st_fibre_density_cross-section.html and was executed as follows:
 <br>
-- Diffusion images preprocessed with QSIPrep were converted from nifti to mif by /mrtrix_csd_fixels/ mrconvert_nii2mif_1.sh
-- Diffusion images underwent initial bias field correction via /mrtrix_csd_fixels/biasfield_correction_2.sh to enhance the quality of brain masking
-- Diffusion image brain masks were generated with /mrtrix_csd_fixels/dwi2mask_3.sh
-- WM, GM, and CSF response functions were computed for each subject by /mrtrix_csd_fixels/responsefunction_dhollander_4.sh, which calls mrtrix3Tissue’s dwi2response single-shell 3-tissue response function estimation algorithm 
-- Study-specific WM, GM, and CSF response functions were generated by averaging response functions from all study subjects in /mrtrix_csd_fixels/average_responsefunction_5.sh
-- Subject-specific FOD images (and GM and WM images) were reconstructed via 3-tissue constrained spherical deconvolution modeling (ss3t_csd_beta1) by running /mrtrix_csd_fixels/ss3t_csd_6.sh
-- FOD images (and GM and WM images) underwent bias field correction and global intensity normalization with mtnormalise via /mrtrix_csd_fixels/mtnormalise_7.sh
-- A study-specific FOD template was computed via mrtrix_csd_fixels/ FOD_populationtemplate_8a.sh (set up directory structure) and mrtrix_csd_fixels/FOD_populationtemplate_8b.sh (run population_template), using data from all 45 study subjects
-- Warps from subject space to the study-specific FOD template were computed with /mrtrix_csd_fixels/subjectFOD_to_ZAPR01FODTemplate_warp_9.sh
-- An FOD template mask was computed by running  /mrtrix_csd_fixels/FOD_populationtemplate_mask_10.sh
-- A study-specific Fixel template was created with /mrtrix_csd_fixels/FixelMask_populationtemplate_11.sh
-- Subject-specific FOD images were registered from subject space to the study-specific FOD template by applying pre-computed warps via /mrtrix_csd_fixels/subjectFOD_to_ZAPR01FODTemplate_applywarp_12.sh
-- Subject-specific fixel masks were generated in template space, FD was computed, and fixels were reoriented to template fixels via /mrtrix_csd_fixels/subjectFixels_FD_13.sh
-- Subject fixels were assigned to study-specific template fixels with /mrtrix_csd_fixels/fixelcorrespondence_14.sh
-- FC and FDC were computed for subject fixels with /mrtrix_csd_fixels/subjectFixels_FC_FDC_15.sh
-- Whole-brain tractography was performed with /mrtrix_csd_fixels/Tractography_populationtemplate_16.sh using the study-specific FOD template as input
-- A fixel-fixel connectivity matrix was generated, based on the whole-brain tractography, to enable fixel measure smoothing via /mrtrix_csd_fixels/fixelconnectivity_17.sh
-- Fixel-based measures were smoothed with /mrtrix_csd_fixels/fixelconnectivity/fixelsmoothing_18.sh 
+   - Diffusion images preprocessed with QSIPrep were converted from nifti to mif by /mrtrix_csd_fixels/ mrconvert_nii2mif_1.sh
+   - Diffusion images underwent initial bias field correction via /mrtrix_csd_fixels/biasfield_correction_2.sh to enhance the quality of brain masking
+   - Diffusion image brain masks were generated with /mrtrix_csd_fixels/dwi2mask_3.sh
+   - WM, GM, and CSF response functions were computed for each subject by /mrtrix_csd_fixels/responsefunction_dhollander_4.sh, which calls mrtrix3Tissue’s dwi2response single-shell 3-tissue response function estimation algorithm 
+   - Study-specific WM, GM, and CSF response functions were generated by averaging response functions from all study subjects in /mrtrix_csd_fixels/average_responsefunction_5.sh
+   - Subject-specific FOD images (and GM and WM images) were reconstructed via 3-tissue constrained spherical deconvolution modeling (ss3t_csd_beta1) by running /mrtrix_csd_fixels/ss3t_csd_6.sh
+   - FOD images (and GM and WM images) underwent bias field correction and global intensity normalization with mtnormalise via /mrtrix_csd_fixels/mtnormalise_7.sh
+   - A study-specific FOD template was computed via mrtrix_csd_fixels/ FOD_populationtemplate_8a.sh (set up directory structure) and mrtrix_csd_fixels/FOD_populationtemplate_8b.sh (run population_template), using data from all 45 study subjects
+   - Warps from subject space to the study-specific FOD template were computed with /mrtrix_csd_fixels/subjectFOD_to_ZAPR01FODTemplate_warp_9.sh
+   - An FOD template mask was computed by running  /mrtrix_csd_fixels/FOD_populationtemplate_mask_10.sh
+   - A study-specific Fixel template was created with /mrtrix_csd_fixels/FixelMask_populationtemplate_11.sh
+   - Subject-specific FOD images were registered from subject space to the study-specific FOD template by applying pre-computed warps via /mrtrix_csd_fixels/subjectFOD_to_ZAPR01FODTemplate_applywarp_12.sh
+   - Subject-specific fixel masks were generated in template space, FD was computed, and fixels were reoriented to template fixels via /mrtrix_csd_fixels/subjectFixels_FD_13.sh
+   - Subject fixels were assigned to study-specific template fixels with /mrtrix_csd_fixels/fixelcorrespondence_14.sh
+   - FC and FDC were computed for subject fixels with /mrtrix_csd_fixels/subjectFixels_FC_FDC_15.sh
+   - Whole-brain tractography was performed with /mrtrix_csd_fixels/Tractography_populationtemplate_16.sh using the study-specific FOD template as input
+   - A fixel-fixel connectivity matrix was generated, based on the whole-brain tractography, to enable fixel measure smoothing via /mrtrix_csd_fixels/fixelconnectivity_17.sh
+   - Fixel-based measures were smoothed with /mrtrix_csd_fixels/fixelconnectivity/fixelsmoothing_18.sh 
 
 ### TMS Sites of Stimulation – Left Amygdala Tract Extraction 
 Following preprocessing, FOD/fixel reconstruction, and tractography, the whole-brain tractography was used to delineate a putative causal pathway by which TMS-evoked cortical activity could travel to the left amygdala. To identify this pathway, a study-specific amygdala TMS sites of stimulation mask was generated, and streamlines with endpoints in this mask and in the left amygdala (Harvard Oxford subcortical atlas) were extracted, as follows:
 
-*Generate an Amygdala TMS Sites of Stimulation Mask*
-- For each subject, the TMS site of stimulation for amygdala-targeted TMS was localized to a set of X, Y, Z MNI space voxel coordinates using Brainsight NeuroNavigation information. Subject-specific MNI coordinates were used to generate a 6 mm^3 site of stimulation ROI, and ROIs from all subjects were merged into a TMS sites of stimulation mask. This was accomplished with the script sites_of_stim/siteofstim_processing.sh
+1. *Generate an Amygdala TMS Sites of Stimulation Mask*
+   - For each subject, the TMS site of stimulation for amygdala-targeted TMS was localized to a set of X, Y, Z MNI space voxel coordinates using Brainsight NeuroNavigation information. Subject-specific MNI coordinates were used to generate a 6 mm^3 site of stimulation ROI, and ROIs from all subjects were merged into a TMS sites of stimulation mask. This was accomplished with the script sites_of_stim/siteofstim_processing.sh
 
-*Register Tractography Inclusion Masks from MNI Space to FOD Template*
-- To identify tractography streamlines with endpoints in the amygdala TMS sites of stimulation mask and the left amygdala, the sites of stimulation mask and a left amygdala ROI (extracted from the Harvard Oxford subcortical atlas) were transformed from MNI space to the study-specific FOD template
+2. *Register Tractography Inclusion Masks from MNI Space to FOD Template*
+   - To identify tractography streamlines with endpoints in the amygdala TMS sites of stimulation mask and the left amygdala, the sites of stimulation mask and a left amygdala ROI (extracted from the Harvard Oxford subcortical atlas) were transformed from MNI space to the study-specific FOD template
 - This was accomplished by first registering the HCP1065 FA template from MNI space to a study-space FA template in FOD template space with /tract_analyses/MNI_to_ZAPR01FODTemplate_warp.sh, and then applying the generated transforms to the masks of interest with  tract_analyses/MNImasks_to_ZAPR01FODTemplate_applywarp.sh
 
-*Extract Causal Pathway Streamlines* 
-- Streamlines connecting the amygdala TMS sites of stimulation mask and the left amygdala were extracted with tract_analyses/tracts_amygdalaSOSmask_LHamygdalaROI_tckedit.sh, identifying a left vlPFC-amygdalar white matter pathway in humans
+3. *Extract Causal Pathway Streamlines* 
+   - Streamlines connecting the amygdala TMS sites of stimulation mask and the left amygdala were extracted with tract_analyses/tracts_amygdalaSOSmask_LHamygdalaROI_tckedit.sh, identifying a left vlPFC-amygdalar white matter pathway in humans
 
-*Map Pathway Streamlines to Fixels*
-- The streamlines that constitute this white matter pathway were mapped back to template fixels with 
+4. *Map Pathway Streamlines to Fixels*
+   - The streamlines that constitute this white matter pathway were mapped back to template fixels with 
 with tract_analyses/tracts_to_fixels.sh 
 - Tract fixels were cropped from the whole-brain fixed mask via tract_analyses/fixelcrop.sh (using a primary streamline threshold of 5 as well as additional varying streamline thresholds for sensitivity analyses). This was performed so that mean fixel-based measures could be extracted from the white matter pathway for each subject.
 
