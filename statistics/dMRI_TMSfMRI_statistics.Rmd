@@ -1,0 +1,225 @@
+---
+title: "A Causal White Matter Pathway Influences Amygdala TMS-fMRI Evoked Response"
+author: "Valerie Jill Sydnor"
+output:
+  html_document:
+    theme: journal
+    toc: yes
+    toc_depth: 4
+    toc_float: no
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(ppcor)
+```
+
+\newpage
+
+**Read in Data**
+
+*Participant Demographics and TMS Administration Information*
+```{r}
+demographics <- read.csv("../../output_measures/ZAPR01_DWI_TMSfMRI_Demographics.csv", header = TRUE)
+```
+
+*Tract-Based Mean Fixel Measures*
+```{r}
+fixels <- read.csv("../../output_measures/fixel_measures/AmygdalaSOS-LHAmygdalaROI25-FixelMeasures.csv", header = TRUE)
+```
+
+*Single Pulse TMS-fMRI BOLD Signal Change (Evoked Response) Measures*
+```{r}
+#Amygdala-targeted vlPFC TMS
+vlPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
+vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25[,-(3:4)]
+colnames(vlPFC.TMS.ER.HO25) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
+
+vlPFC.TMS.ER.HO50 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_HO50_Subcortical.csv", header=FALSE, sep='\t')
+vlPFC.TMS.ER.HO50 <- vlPFC.TMS.ER.HO50[,-(3:4)]
+colnames(vlPFC.TMS.ER.HO50) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
+
+vlPFC.TMS.ER.sgROI <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_sgACC.csv",header=FALSE, sep='\t')
+vlPFC.TMS.ER.sgROI <- vlPFC.TMS.ER.sgROI[,-(3:4)]
+colnames(vlPFC.TMS.ER.sgROI) <- c("Case","File","sgACC")
+
+#sgACC-target dmPFC TMS
+dmPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
+dmPFC.TMS.ER.HO25 <- dmPFC.TMS.ER.HO25[,-(3:4)]
+colnames(dmPFC.TMS.ER.HO25) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
+
+dmPFC.TMS.ER.HO50 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_HO50_Subcortical.csv", header=FALSE, sep='\t')
+dmPFC.TMS.ER.HO50 <- dmPFC.TMS.ER.HO50[,-(3:4)]
+colnames(dmPFC.TMS.ER.HO50) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
+
+dmPFC.TMS.ER.sgROI <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_sgACC.csv",header=FALSE, sep='\t')
+dmPFC.TMS.ER.sgROI <- dmPFC.TMS.ER.sgROI[,-(3:4)]
+colnames(dmPFC.TMS.ER.sgROI) <- c("Case","File","sgACC")
+```
+
+*Amygdala-targeted TMS Site of Stimulation-Amygdala Functional Connectivity*
+```{r}
+func.connectivity <- read.csv("../../output_measures/functional_connectivity/rsfc_targets_GSR_DNS.csv", header=TRUE)
+```
+
+*Amygdala-targeted TMS Site of Stimulation MNI Coordinates*
+```{r}
+SOS.coordinates <- read.csv("../../output_measures/functional_connectivity/PreAmygdala_Target_Coordinates.csv", header=TRUE)
+```
+
+\newline
+
+## TMS Administered to the vlPFC Elicits a Functional Response in the Aymgdala
+
+Single pulse TMS administered to the left vlPFC (to amygdala functional connectivity hotspot) tended to decrease BOLD activity in the left amygdala, evoking a negative BOLD signal change that was significantly different than 0
+
+```{r}
+t.test(vlPFC.TMS.ER.HO25$left_amygdala) #Harvard Oxford maxprob thr25 - less anatomically inclusive
+t.test(vlPFC.TMS.ER.HO50$left_amygdala) #Harvard Oxford maxprob thr50 - more anatomically restrictive
+```
+
+BOLD activity in the left amygdala decreased in response to vlPFC TMS pulses in the majority of individuals
+
+```{r}
+sum(vlPFC.TMS.ER.HO25$left_amygdala < 0)
+```
+
+The magnitude of BOLD signal change in the left amygdala following vlPFC single pulse TMS was significantly positively correlated with ***TMS dose***
+
+```{r}
+demographics[38,56] <- mean(na.omit(demographics$dose_weighted)) # impute missing dose weighted by averaging all other doses
+cor.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$dose_weighted)
+```
+
+Evoked responses in the left amygdala were of significantly greater magnitude than evoked responses in all other left hemisphere Harvard Oxford subcortical structures, apart from the left accumbens
+
+```{r}
+vlPFC.TMS.ER.HO25.leftsubcortical <- vlPFC.TMS.ER.HO25[,c(6,7,8,9,11,12,13)] #extract lh subcortical data
+means <- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){ mean(abs(x))})) #mean magnitude evoked response for each lh subcortical region
+
+t.tests.ER.tstat <- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$statistic})) #t-statistic from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
+t.tests.ER.pval <- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$p.value})) #p-value from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
+t.tests.ER.pval.fdr <- p.adjust(t.tests.ER.pval[1,], method = c("fdr")) #FDR-corrected p-value from the paired t-tests
+
+vlPFC.TMS.ERMagnitude.Ttests <- rbind(means, t.tests.ER.tstat, t.tests.ER.pval, t.tests.ER.pval.fdr) #merge measures into one data frame
+vlPFC.TMS.ERMagnitude.Ttests <- t(round(vlPFC.TMS.ERMagnitude.Ttests, 6)) #transpose to view results in a table
+colnames <- c("Mean.ER","t.statistic","p.value","FDR.p.value") #label column data
+colnames(vlPFC.TMS.ERMagnitude.Ttests) <- colnames
+vlPFC.TMS.ERMagnitude.Ttests
+```
+
+\newline
+
+## Fiber Density in an Identified vlPFC-Amygdala White Matter Pathway Is Associated with Magnitude of Amygdala TMS-Evoked Response
+
+Higher fiber density in an identified vlPFC-amygdala pathway was associated with a larger TMS-evoked change in left amygdala BOLD signal (i.e., a larger evoked response), controlling for age
+
+```{r}
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))
+```
+
+vlPFC-amygdala pathway fiber cross section was not associated with TMS-evoked response in the left amygdala, controlling for age
+
+```{r}
+pcor.test(fixels$logFC_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))
+```
+
+Sensitivity Analyses
+
+* FD-evoked response association controlling for age and sex
+```{r}
+covs <- data.frame(demographics$age, demographics$gender)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
+
+* FD-evoked response association controlling for age and TMS dose
+```{r}
+covs <- data.frame(demographics$age, demographics$dose_weighted)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
+
+* FD-evoked response association controlling for age and site of stimulation-amygdala functional connectivity (baseline fMRI scan)
+```{r}
+covs <- data.frame(demographics$age, func.connectivity$functional_connectivity)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
+
+* FD-evoked response association controlling for age and TMS site of stimulation Y and Z MNI coordinates
+```{r}
+covs <- data.frame(demographics$age, SOS.coordinates$Y, SOS.coordinates$Z)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
+
+* FD-evoked response association controlling for age and DWI scan motion (mean framewise displacement)
+```{r}
+covs <- data.frame(demographics$age, demographics$DWI_motion_meanFD)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
+
+* FD-evoked response association using Harvard Oxford amygdala ROI with a stricter anatomical threshold (maxprob-thr50)
+```{r}
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO50$left_amygdala), demographics$age, method=c("spearman"))
+```
+
+* FD-evoked response association at varying fixel streamline mapping thresholds (tck2fixel thresholds)
+```{r}
+fixel.FD.thresholds <- fixels[,c(2,3,5,6,7)]
+cor.tests.threshold.rho <- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))$estimate})) #rho of FD-evoked response partial correlation at varying thresholds
+cor.tests.threshold.p.value <- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))$p.value})) #p-value of FD-evoked response partial correlation at varying thresholds
+FD.ER.Threshold.Cortests <- t(rbind(cor.tests.threshold.rho,cor.tests.threshold.p.value)) #merge and transpose to view results 
+colnames <- c("rho","p.value")
+colnames(FD.ER.Threshold.Cortests) <- colnames
+FD.ER.Threshold.Cortests
+```
+
+\newline
+
+## vlPFC-Amygdala Pathway Fiber Density is Not Related to TMS Response in other Subcortical Structures
+
+Higher fiber density in the vlPFC-amygdala pathway was additionally associated with a larger TMS-evoked response in the left hippocampus, controlling for age
+
+```{r}
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_hippocampus), demographics$age, method=c("spearman"))
+```
+
+However, fiber density in the vlPFC-amygdala pathway was NOT associated with TMS-evoked response in any other left hemisphere subcortical structures
+
+```{r}
+vlPFC.TMS.ER.HO25.leftsubcortical <- vlPFC.TMS.ER.HO25.leftsubcortical[,c(1,2,3,4,7)]
+cor.tests.lhsubcortical.rho <- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x) {pcor.test(abs(x),fixels$FD_mean_5, demographics$age, method=c("spearman"))$estimate})) #rho of FD-evoked response partial correlation for remaining lh subcortical regions
+cor.tests.lhsubcortical.p.value <- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x) {pcor.test(abs(x),fixels$FD_mean_5, demographics$age, method=c("spearman"))$p.value})) #p-value of FD-evoked response partial correlation for remaining lh subcortical regions
+FD.ER.LHSubcortical.Cortests <- t(rbind(cor.tests.lhsubcortical.rho,cor.tests.lhsubcortical.p.value))
+colnames <- c("rho","p.value")
+colnames(FD.ER.LHSubcortical.Cortests) <- colnames
+FD.ER.LHSubcortical.Cortests
+```
+
+FDR correction across all 7 subcortical structures
+```{r}
+ps <- c("0.01637692","0.0001701558","0.9121564","0.9340086","0.5061544","0.4679484","0.886427")
+print("amygdala, hippocampus, thalamus, caudate, putamen, pallidum, accumbens")
+p.adjust(ps, method=c("fdr"))
+```
+
+\newline
+
+## vlPFC-Amygdala Pathway Fiber Density is Not Related to TMS-Evoked Response in the Left Amygdala when TMS is Targeted to a dmPFC Control Site
+
+When targeting a control site in the dmPFC (sgACC functional connectivity hotspot), there was no association between vlPFC-amygdala pathway fiber density and TMS-evoked response in the left amygdala or the left hippocampus
+
+*Left amygdala
+```{r}
+pcor.test(fixels$FD_mean_5, abs(dmPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))
+```
+
+*Left hippocampus
+```{r}
+pcor.test(fixels$FD_mean_5, abs(dmPFC.TMS.ER.HO25$left_hippocampus), demographics$age, method=c("spearman"))
+```
