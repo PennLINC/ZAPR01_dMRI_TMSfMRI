@@ -1,6 +1,6 @@
 <br>
 <br>
-# A CAUSAL WHITE MATTER PATHWAY INFLUENCES AMYGDALAR TMS-FMRI EVOKED RESPONSE
+# A CAUSAL WHTIE MATTER PATHWAY INFLUENCES TMS-INDUCED AMYGDALA FMRI REPSONSE
 
 ### Project Lead
 Valerie J. Sydnor
@@ -101,3 +101,9 @@ Following preprocessing, FOD/fixel reconstruction, and tractography, the whole-b
 
 ### Tract-Based Mean Fixel Measures and TMS-fMRI Evoked Response Measures
 To assess whether microstructural (FD) and macrostructural (logFC) properties of the vlPFC-amygdala white matter pathway were associated with the magnitude of TMS-evoked functional response in the amydala (and to conduct related specificity analyses), vlPFC-amygdala white matter pathway fixel measures (FD, logFC, FDC) were extracted for each subject with [/tract_analyses/fixelmeasures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelmeasures.sh) and TMS-fMRI evoked response data were extracted with [/TMSfMRI_EvokedResponse/TMSfMRI_SignalChange_TMSon_Measures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/TMSfMRI_evokedresponse/TMSfMRI_SignalChange_TMSon_Measures.sh). The fMRI data were preprocessed with fMRIPrep and postprocessed with XCP to generate single pulse TMS-fMRI evoked response (signal change) maps, as detailed in Duprat et al. (In preparation).
+
+### Statistical Analysis
+Manuscript statistics were conducted in R and are included in [/statistics/dMRI_TMSfMRI_statistics.Rmd](/https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/statistics/dMRI_TMSfMRI_statistics.Rmd). The main model was:
+   ```R
+   pcor.test(WM.fiberdensity, Amygdala.evokedresponse, Age, method = c("spearman))
+   ``` 
