@@ -50,7 +50,7 @@ Poster presentation at The Society of Biological Psychiatry Annual Meeting, Apri
 ZAPR01 diffusion MRI data was first BIDSifyed, preprocessed with QSIPrep, and postprocessed with mrtrix’s fixel-based analysis pipeline, as detailed below: 
 
 1. *Organize Data into BIDS* 
-   - ZAPR01 data was organized into the Brain Imaging Data Structure via heudiconv-0.5.4 via the script [/bids/ZAP2BIDS.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/bids/ZAP2BIDS.sh). This script both converts the original ZAPR01 directory/file structure to BIDS and adds IntendedFor specifications to fieldmap jsons. 
+   - ZAPR01 data was organized into the Brain Imaging Data Structure via heudiconv-0.5.4 via the script [/bids/ZAP2BIDS.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/bids/ZAP2BIDS.sh). This script both converts the original ZAPR01 directory/file structure to BIDS and adds IntendedFor specifications to fieldmap jsons 
    - The study-specific heuristic [/bids/ZAPR01_legacyandnew_heuristic.py](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/bids/ZAPR01_legacyandnew_heuristic.py) was used for BIDS conversion via the call 
    ```bash
    $ sh ZAP2BIDS.sh vsydnor /data/jux/oathes_group/projects/vsydnor/scripts/ZAP2BIDS/ZAPR01_legacyandnew_heuristic.py
@@ -64,9 +64,9 @@ ZAPR01 diffusion MRI data was first BIDSifyed, preprocessed with QSIPrep, and po
    ```bash
    $ qsiprep-0.6.3RC3.simg --bids_dir $bidsdir --output_dir $qsiprepdir --analysis_level participant --participant_label $SUBJ --hmc_model eddy --eddy-config eddy_params.json --b0-motion-corr-to first --output-space T1w --output-resolution 1.3 --force-spatial-normalization --do-reconall
    ```
-   - Note: qsiprep-0.6.3RC3.simg was built and run on chead, and the output of qsiprep was copied to dopamine (/storage/vsydnor/ZAPR01_WhiteMatter_TMSfMRI/qsiprep_0.6.3). All subsequent scripts and analyses were run on dopamine.
+   - Note: qsiprep-0.6.3RC3.simg was built and run on chead, and the output of qsiprep was copied to dopamine (/storage/vsydnor/ZAPR01_WhiteMatter_TMSfMRI/qsiprep_0.6.3). All subsequent scripts/analyses were run on dopamine
 
-3. *Postprocess Diffusion Data with MrTrix Fixel-Based Analysis Pipeline*
+3. *Postprocess Diffusion Data with MrTrix Fixel-Based Analysis Pipeline*  
 The mrtrix fixel-based analysis pipeline was implemented to postprocess the output of qsiprep. This pipeline includes diffusion signal reconstruction via constrained spherical deconvolution, fixel segmentation, and tractography generation. The pipeline generates subject-specific FOD images and a study-specific FOD template, subject-specific fixel images and a study-specific fixel template, and template-based whole-brain tractography. The pipeline outlined below includes the relevant steps documented in [mrtrix3Tissue](https://3tissue.github.io/doc/single-subject.html) and [mrtrix CSD fixel pipeline](https://mrtrix.readthedocs.io/en/latest/fixel_based_analysis/st_fibre_density_cross-section.html) and was executed as follows:
 <br>
    - Diffusion images preprocessed with QSIPrep were converted from nifti to mif by [/mrtrix_csd_fixels/mrconvert_nii2mif_1.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/mrtrix_csd_fixels/mrconvert_nii2mif_1.sh)
@@ -103,7 +103,7 @@ To identify tractography streamlines with endpoints in the amygdala TMS sites of
 
 4. *Map Pathway Streamlines to Fixels*
    - In order to quantify mean fixel-based pathway measures for each subject (e.g. fiber density), the causal white matter pathway streamlines were mapped back to template fixels with [/tract_analyses/tracts_to_fixels.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/tracts_to_fixels.sh) 
-  - Tract fixels were then cropped from the whole-brain fixed mask via [/tract_analyses/fixelcrop.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelcrop.sh) (using a primary streamline threshold of 5 as well as additional streamline thresholds for sensitivity analyses)
+   - Tract fixels were then cropped from the whole-brain fixed mask via [/tract_analyses/fixelcrop.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelcrop.sh) (using a primary streamline threshold of 5 as well as additional streamline thresholds for sensitivity analyses)
 
 ### Tract-Based Mean Fixel Measures and TMS-fMRI Evoked Response Measures
 To assess whether microstructural (FD) and macrostructural (logFC) properties of the vlPFC-amygdala white matter pathway were associated with the magnitude of TMS-evoked functional response in the amydala (and to conduct related sensitivity and specificity analyses), vlPFC-amygdala white matter pathway fixel measures (FD, logFC, FDC) were extracted for each subject with [/tract_analyses/fixelmeasures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelmeasures.sh) and TMS-fMRI functional evoked response data were extracted with [/TMSfMRI_EvokedResponse/TMSfMRI_SignalChange_TMSon_Measures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/TMSfMRI_evokedresponse/TMSfMRI_SignalChange_TMSon_Measures.sh). Note: the fMRI data were preprocessed with fMRIPrep and postprocessed with XCP to generate single pulse TMS-fMRI BOLD signal change (i.e. evoked response) maps, as detailed in Duprat et al. (In preparation).
