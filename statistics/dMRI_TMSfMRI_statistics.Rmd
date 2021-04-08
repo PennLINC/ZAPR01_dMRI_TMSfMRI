@@ -144,13 +144,20 @@ Higher fiber density in an identified vlPFC-amygdala pathway was associated with
 pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))
 ```
 
-vlPFC-amygdala pathway fiber cross section was not associated with TMS-evoked response in the left amygdala, controlling for age
+vlPFC-amygdala pathway fiber cross section was not associated with TMS-evoked response in the left amygdala, controlling for age and estimated total intracranial volume
 
 ```{r}
-pcor.test(fixels$logFC_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c("spearman"))
+covs <- data.frame(demographics$age, demographics$eTIV)
+pcor.test(fixels$logFC_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
 ```
 
 Sensitivity Analyses
+
+* FD-evoked response association controlling for age and estimated total intracranial volume
+```{r}
+covs <- data.frame(demographics$age, demographics$eTIV)
+pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c("spearman"))
+```
 
 * FD-evoked response association controlling for age and gender
 ```{r}
