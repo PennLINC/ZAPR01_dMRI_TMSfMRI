@@ -1,0 +1,208 @@
+---
+title: "Manuscript Figures"
+author: "Valerie Jill Sydnor"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(Hmisc)
+library(plyr)
+library(RColorBrewer)
+library(reshape2)
+library(PupillometryR)
+```
+
+*Read in Data*
+
+Participant Demographics and TMS Administration Information
+```{r}
+demographics <- read.csv("../../output_measures/ZAPR01_DWI_TMSfMRI_Demographics.csv", header = TRUE)
+```
+
+Tract-Based Mean Fixel Measures
+```{r}
+fixels <- read.csv("../../output_measures/fixel_measures/AmygdalaSOS-LHAmygdalaROI25-FixelMeasures.csv", header = TRUE)
+```
+
+Single Pulse TMS-fMRI BOLD Signal Change (Evoked Response) Measures
+```{r}
+#Amygdala-targeted vlPFC TMS
+vlPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
+vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25[,-(3:4)]
+colnames(vlPFC.TMS.ER.HO25) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
+vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25 %>% mutate(left_amygdala_sign = case_when(left_amygdala < 0 ~ -1, left_amygdala >0 ~ 1))
+```
+
+*Visualize Data*
+
+FIGURE 2: AMYGDALA BOLD SIGNAL CHANGE FOLLOWING TMS ADMINISTERED TO VLPFC CONNECTIVITY PEAKS
+
+Figure 2B
+```{r}
+datal <- melt(vlPFC.TMS.ER.HO25, id.vars = c("Case"), measure.vars = c("left_amygdala"), variable.name = "Region", value.name = "ER")
+
+lb <- function(x) mean(x) - sd(x)
+ub <- function(x) mean(x) + sd(x)
+
+sumld<- ddply(datal, ~Region, summarise, mean = mean(abs(ER)), median = median(abs(ER)), lower = lb(abs(ER)), upper = ub(abs(ER)))
+datal$sign <- as.factor(vlPFC.TMS.ER.HO25$left_amygdala_sign)
+
+jpeg("../../Figures/Images/LeftAmygdala_EvokedResponseMagnitude_RainCloudPlot.jpg", units="in", width=7.3, height=6.6, res=800)
+
+ggplot(data = datal, aes(y = abs(ER), x = Region, fill = Region)) +
+geom_flat_violin(position = position_nudge(x = .25, y = 0), alpha = .99, fill = c("#3f55a5")) +
+geom_point(aes(y=abs(ER), fill=sign, color=sign), pch = 21, position = position_jitter(width = .15), size = 3.15, stroke = .5, alpha = .85) +
+geom_boxplot(width = .13, outlier.shape = NA, alpha = 0.5, fill = c("#3f55a5")) +
+scale_color_manual(values=c("black","black")) +
+scale_fill_manual(values=c("black","gray65")) +
+expand_limits(x = 3.5) +
+theme_bw() +
+theme(
+text = element_text(size = 10),
+axis.title.x = element_blank(),
+axis.title.y = element_blank(),
+axis.text.x = element_blank(),
+axis.text.y = element_text(family="Arial",size=28, color = "black"),
+axis.ticks.x = element_blank(),
+legend.position = "none",
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=.8, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=.8, linetype='solid')) +
+scale_y_continuous(breaks = c(0,0.2,0.4,0.6))
+```
+
+
+Figure 2C
+```{r}
+ERdata <- vlPFC.TMS.ER.HO25[,c(6,7,8,9,11,13)] 
+ERdata.diff <- as.data.frame(lapply(ERdata, function(x){(abs(vlPFC.TMS.ER.HO25$left_amygdala) - abs(x))}))
+ERdata.diff$Case <- vlPFC.TMS.ER.HO25$Case
+
+datal <- melt(ERdata.diff, id.vars = c("Case"), measure.vars = c("left_pallidum", "left_caudate",  "left_putamen","left_hippocampus","left_thalamus","left_accumbens"), variable.name = "Region", value.name = "ERdiff")
+
+
+lb <- function(x) mean(x) - sd(x)
+ub <- function(x) mean(x) + sd(x)
+
+sumld<- ddply(datal, ~Region, summarise, mean = mean(ERdiff), median = median(ERdiff), lower = lb(ERdiff), upper = ub(ERdiff))
+
+fills <- c("#293d8a","#3f55a5","#7689cc","#88a2d1","#9ab5e3","#b4c9ed")
+
+jpeg("../../Figures/Images/EvokedResponseMagnitude_Difference_BoxPlots.jpg", units="in", width=8.2, height=5.6, res=800)
+
+ggplot(data = datal, aes(y = ERdiff, x = Region, fill = Region)) +
+geom_point(aes(y = ERdiff, color = Region), position = position_jitter(width = .3), size = 1.7, alpha = 0.9) +
+geom_boxplot(width = .25, outlier.shape = NA, alpha = 0.5, notch=T) +
+scale_color_manual(values=fills) +
+scale_fill_manual(values=fills) +
+scale_x_discrete(expand = c(0.1,0)) +
+theme_bw() +
+theme(
+axis.title.x = element_blank(),
+axis.title.y = element_blank(),
+axis.text.x = element_blank(),
+axis.text.y = element_text(family="Arial",size=22, color = "black"),
+legend.position = "none",
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=0.75, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.75, linetype='solid'),
+) +
+scale_y_continuous(limits = c(-.725,.55), breaks = c(-.6,-.4,-.2,.2,.4,.6)) +
+geom_hline(yintercept=0, size = 0.5)
+```
+
+
+FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical TMS-Evoked Responses
+
+Figure 4A
+```{r}
+FD_agecorrected <- lm(fixels$FD_mean_5 ~ demographics$age)
+plotdata <- data.frame(FD_agecorrected$residuals, vlPFC.TMS.ER.HO25$left_amygdala)
+
+jpeg("../../Figures/Images/EvokedResponseMagnitude_PathwayFD_AgeCorrected_Scatterplot.jpg", units="in", width=7.3, height=6.6, res=800)
+
+ggplot(plotdata, aes(y=abs(vlPFC.TMS.ER.HO25.left_amygdala), x=FD_agecorrected.residuals, )) +
+geom_point(color = "white", fill = "#85629f", shape=21, size=4.5) +
+labs(y="\nLeft Amygdala Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
+geom_smooth(method='lm', se=TRUE, fill=alpha(c("gray70"),.7), col="black") +
+theme(
+axis.title.x=element_blank(),
+axis.title.y=element_blank(),
+axis.line = element_line(color = "black"),
+axis.text=element_text(family="Arial",size=32, color = "black"),
+panel.background=element_blank()) +
+scale_y_continuous(limits = c(0,0.65)) +
+scale_x_continuous(limits = c(-0.06,0.08), breaks = c(-0.05, 0, 0.05))
+```
+
+
+Figure 4B
+```{r}
+ER.FD.partialR <- data.frame(Region=character(), rho=double())
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Hipp", rho= 0.537)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg", rho= 0.360)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Pal", rho= 0.112)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Thal", rho= 0.0171)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Caud", rho= 0.0128)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Acc", rho= -0.0221)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Put", rho= -0.1029)
+
+jpeg("../../Figures/Images/EvokedResponseMagnitude_PathwayFD_RhoPlot.jpg", units="in", width=7.3, height=6.6, res=800)
+
+plot_order <- c('Hipp', 'Amyg', 'Pal', "Thal", "Caud", "Acc","Put")
+
+ggplot(data=ER.FD.partialR, aes(x=(factor(Region, level = plot_order)), y=rho, fill=Region)) + geom_col() + 
+labs(x="Subcortical Regions") +
+labs(y="\nSpearman's Rho\n") +
+theme_minimal()+
+theme(
+axis.title.x=element_blank(),
+axis.title.y=element_blank(),
+axis.line = element_line(colour = "black"),
+axis.text.y = element_text(family="Arial",size=32, color = "black"),
+axis.text.x = element_blank(),
+panel.grid.major.y = element_blank(),
+panel.grid.major.x = element_blank(),
+panel.grid.minor.y = element_blank(),
+axis.ticks = element_line(),
+legend.position = "none") +
+scale_fill_manual(values=c("#85629f", "#85629f", "#85629f","#85629f","#85629f","#85629f","#85629f"))
+```
+
+Figure 4D
+```{r}
+ER.FD.partialR <- data.frame(Region=character(), rho=double())
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg.vlPFC", rho= 0.360)
+ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg.control", rho= 0.0873)
+
+
+jpeg("../../Figures/Images/AmygdalaEvokedResponse_PathwayFD_vlPFCvControl_RhoPlot.jpg", units="in", width=4, height=6.6, res=800)
+
+plot_order <- c('Amyg.vlPFC','Amyg.control')
+
+ggplot(data=ER.FD.partialR, aes(x=(factor(Region, level = plot_order)), y=rho, fill=Region)) + geom_col() + 
+labs(x="TMS Stimulation Site") +
+labs(y="\nSpearman's Rho\n") +
+theme_minimal()+
+theme(
+axis.title.x=element_blank(),
+axis.title.y=element_blank(),
+axis.line = element_line(colour = "black"),
+axis.text.y = element_text(family="Arial",size=32, color = "black"),
+axis.text.x = element_blank(),
+panel.grid.major.y = element_blank(),
+panel.grid.major.x = element_blank(),
+panel.grid.minor.y = element_blank(),
+axis.ticks = element_line(),
+legend.position = "none") +
+scale_fill_manual(values=c("#03540e","#85629f"))
+```
