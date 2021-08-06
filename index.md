@@ -1,6 +1,6 @@
 <br>
 <br>
-# A CAUSAL WHITE MATTER PATHWAY INFLUENCES TMS-EVOKED AMYGDALAR FUNCTIONAL RESPONSE
+# CORTICAL-SUBCORTICAL WHITE MATTER SUPPORTS TMS ENGAGEMENT OF THE AMYGDALA
 
 ### Project Lead
 Valerie J. Sydnor
@@ -13,7 +13,7 @@ Theodore D. Satterthwaite
 Matthew Cieslak
 
 ### Collaborators 
-Romain Duprat, Hannah Long, Matthew W. Flounders, Joseph Deluisi, Morgan Scully, Danielle S. Bassett
+Romain Duprat, Hannah Long, Matthew W. Flounders, Joseph Deluisi, Morgan Scully, Nicholas L. Balderston, Yvette I. Sheline, Danielle S. Bassett
 
 ### Project Start Date
 August 2018
@@ -105,6 +105,11 @@ To identify tractography streamlines with endpoints in the amygdala TMS sites of
    - In order to quantify mean fixel-based pathway measures for each subject (e.g. fiber density), the causal white matter pathway streamlines were mapped back to template fixels with [/tract_analyses/tracts_to_fixels.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/tracts_to_fixels.sh) 
    - Tract fixels were then cropped from the whole-brain fixed mask via [/tract_analyses/fixelcrop.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelcrop.sh) (using a primary streamline threshold of 5 as well as additional streamline thresholds for sensitivity analyses)
 
+### Tract Anatomy and Brodmann Overlap
+The scripts in [/tract_analyses/anatomy](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/tree/master/tract_analyses/anatomy) were written to gain insight into the anatomy of the identified vlPFC-amygdala pathway.
+   - Pathway streamlines were mapped to voxels for the visualization in Figure 3B using tracts_to_voxels.sh
+   - The Brodmann areas that pathway streamlines originated in were determined by running tractendpoints.sh followed by tractorigins_brodmann.sh 
+
 ### Tract-Based Mean Fixel Measures and TMS-fMRI Evoked Response Measures
 To assess whether microstructural (FD) and macrostructural (logFC) properties of the vlPFC-amygdala white matter pathway were associated with the magnitude of TMS-evoked functional response in the amydala (and to conduct related sensitivity and specificity analyses), vlPFC-amygdala white matter pathway fixel measures (FD, logFC, FDC) were extracted for each subject with [/tract_analyses/fixelmeasures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelmeasures.sh) and TMS-fMRI functional evoked response data were extracted with [/TMSfMRI_EvokedResponse/TMSfMRI_SignalChange_TMSon_Measures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/TMSfMRI_evokedresponse/TMSfMRI_SignalChange_TMSon_Measures.sh). Note: the fMRI data were preprocessed with fMRIPrep and postprocessed with XCP to generate single pulse TMS-fMRI BOLD signal change (i.e. evoked response) maps, as detailed in Duprat et al. (In preparation).
 
@@ -113,3 +118,6 @@ Manuscript statistics were conducted in R and are included in [/statistics/dMRI_
    ```R
    pcor.test(WM.fiberdensity, abs(amygdala.evokedresponse), age, method = c("spearman"))
    ``` 
+
+### Visualization
+Manuscript figures were generated using R, mrview, fsleyes, and Slicer. Slicer was used to visualize TMS sites of stimulation (Figure 2A, Figure 4C); the center of gravity for all vlPFC stimulation sites / control stimulation sites was calculated with [/sites_of_stim/stimsites_vlPFC_control_COG.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/sites_of_stim/stimsites_vlPFC_control_COG.sh). Mrview was used to visualize the vlPFC-amygdala pathway, as well as pathway streamlines, FODs, and fixels (Figure 3A). Fsleyes was used to visualize pathway anatomy overlaid on the JHU white matter atlas (Figure 3B). The R code in [/visualization/dMRI_TMSfMRI_visualization.Rmd](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/visualization/dMRI_TMSfMRI_visualization.Rmd) was written to generate all graphs (Figure 2B, Figure 2C, Figure 4A, Figure 4B, Figure 4D).
