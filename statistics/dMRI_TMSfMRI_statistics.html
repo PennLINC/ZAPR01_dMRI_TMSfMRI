@@ -542,7 +542,8 @@ colnames(dmPFC.TMS.ER.sgROI) &lt;- c(&quot;Case&quot;,&quot;File&quot;,&quot;sgA
 <pre><code>## [1] 30</code></pre>
 <p><strong>The magnitude of left amygdala TMS evoked responses correlated with the effective strength of neurostimulation, i.e., <em>TMS dose</em></strong></p>
 <pre class="r"><code>demographics[38,55] &lt;- mean(na.omit(demographics$dose_weighted_vlPFC)) # impute missing dose weighted by averaging all other doses
-cor.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$dose_weighted_vlPFC, method=c(&quot;spearman&quot;), exact = F)</code></pre>
+result &lt;- cor.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$dose_weighted_vlPFC, method=c(&quot;spearman&quot;), exact = F)
+result</code></pre>
 <pre><code>## 
 ##  Spearman&#39;s rank correlation rho
 ## 
@@ -552,6 +553,33 @@ cor.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$dose_weighted_vlPFC,
 ## sample estimates:
 ##       rho 
 ## 0.3532512</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = 45, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+##        rho 
+## 0.05771971 
+## 
+## $CI_high
+##       rho 
+## 0.5918595</code></pre>
+<pre class="r"><code>result &lt;- cor.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$stimulator_output_vlPFC, method=c(&quot;spearman&quot;), exact=F)
+result</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  abs(vlPFC.TMS.ER.HO25$left_amygdala) and demographics$stimulator_output_vlPFC
+## S = 16478, p-value = 0.5764
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##         rho 
+## -0.08553907</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = 45, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+##        rho 
+## -0.3774806 
+## 
+## $CI_high
+##       rho 
+## 0.2218691</code></pre>
 <p><strong>Magnitude of evoked response in the left amygdala did not significantly correlate with magnitude of evoked response in most other subcortical structures, revealing that subcortical responses to TMS are unique and differentiable</strong></p>
 <pre class="r"><code>vlPFC.TMS.ER.HO25.leftsubcortical &lt;- vlPFC.TMS.ER.HO25[,c(6,7,8,9,11,13)] #extract lh subcortical data
 
@@ -577,89 +605,169 @@ vlPFC.TMS.ERMagnitude.Correlations</code></pre>
 t.tests.ER.tstat &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$statistic})) #t-statistic from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
 t.tests.ER.pval &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$p.value})) #p-value from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
 t.tests.ER.pval.fdr &lt;- p.adjust(t.tests.ER.pval[1,], method = c(&quot;fdr&quot;)) #FDR-corrected p-value from the paired t-tests
+t.tests.ER.CIlower &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$conf.int[1]})) #95% confidence interval from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
+t.tests.ER.CIupper &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(t.test(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), paired=T))$conf.int[2]})) #95% confidence interval from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
+t.tests.ER.CohensD &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x){(cohensD(abs(vlPFC.TMS.ER.HO25$left_amygdala), abs(x), method=&quot;paired&quot;))})) #cohens D from a paired t-test comparing evoked responses in the left amygdala and every other lh subcortical region
 
-vlPFC.TMS.ERMagnitude.Ttests &lt;- rbind(means, t.tests.ER.tstat, t.tests.ER.pval, t.tests.ER.pval.fdr) #merge measures into one data frame
+vlPFC.TMS.ERMagnitude.Ttests &lt;- rbind(means, t.tests.ER.tstat, t.tests.ER.pval, t.tests.ER.pval.fdr, t.tests.ER.CohensD, t.tests.ER.CIlower, t.tests.ER.CIupper) #merge measures into one data frame
 vlPFC.TMS.ERMagnitude.Ttests &lt;- t(round(vlPFC.TMS.ERMagnitude.Ttests, 6)) #transpose to view results in a table
-colnames &lt;- c(&quot;Mean.ER&quot;,&quot;t.statistic&quot;,&quot;p.value&quot;,&quot;FDR.p.value&quot;) #label column data
+colnames &lt;- c(&quot;Mean.ER&quot;,&quot;t.statistic&quot;,&quot;p.value&quot;,&quot;FDR.p.value&quot;, &quot;Cohens d&quot;, &quot;95% CI lower&quot;, &quot;95% CI upper&quot;) #label column data
 colnames(vlPFC.TMS.ERMagnitude.Ttests) &lt;- colnames
 vlPFC.TMS.ERMagnitude.Ttests</code></pre>
-<pre><code>##                   Mean.ER t.statistic  p.value FDR.p.value
-## left_thalamus    0.157891    2.137928 0.038115    0.038115
-## left_caudate     0.104804    4.860819 0.000015    0.000091
-## left_putamen     0.125369    4.059843 0.000199    0.000397
-## left_pallidum    0.112962    4.301839 0.000093    0.000278
-## left_hippocampus 0.170649    2.486756 0.016757    0.020109
-## left_accumbens   0.378177   -3.459561 0.001214    0.001821</code></pre>
+<pre><code>##                   Mean.ER t.statistic  p.value FDR.p.value Cohens d
+## left_thalamus    0.157891    2.137928 0.038115    0.038115 0.318703
+## left_caudate     0.104804    4.860819 0.000015    0.000091 0.724608
+## left_putamen     0.125369    4.059843 0.000199    0.000397 0.605206
+## left_pallidum    0.112962    4.301839 0.000093    0.000278 0.641280
+## left_hippocampus 0.170649    2.486756 0.016757    0.020109 0.370704
+## left_accumbens   0.378177   -3.459561 0.001214    0.001821 0.515721
+##                  95% CI lower 95% CI upper
+## left_thalamus        0.003042     0.103080
+## left_caudate         0.062137     0.150158
+## left_putamen         0.043098     0.128068
+## left_pallidum        0.052082     0.143896
+## left_hippocampus     0.007640     0.072966
+## left_accumbens      -0.264643    -0.069808</code></pre>
 </div>
 <div id="pathway-fiber-density-is-associated-with-the-magnitude-of-the-amygdala-tms-evoked-response" class="section level2">
 <h2>Pathway fiber density is associated with the magnitude of the amygdala TMS evoked response</h2>
 <p> </p>
 <p><strong>Higher fiber density in an identified vlPFC-amygdala white matter pathway was associated with a larger TMS-evoked change in left amygdala BOLD signal, controlling for age</strong></p>
-<pre class="r"><code>pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))</code></pre>
+<pre class="r"><code>result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3600124 0.01637692  2.500834 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.06543682
+## 
+## $CI_high
+## [1] 0.5968694</code></pre>
 <p><strong>vlPFC-amygdala pathway cross section was not associated with the TMS-evoked response in the left amygdala, controlling for age and estimated total intracranial volume</strong></p>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$eTIV)
-pcor.test(fixels$logFC_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$logFC_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##     estimate   p.value  statistic  n gp   Method
 ## 1 -0.1154427 0.4610182 -0.7441691 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] -0.403087
+## 
+## $CI_high
+## [1] 0.1929602</code></pre>
 <p><strong>Sensitivity Analyses</strong></p>
 <ul>
 <li>FD-evoked response association controlling for age and estimated total intracranial volume (eTIV, from FreeSurfer stats files)</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$eTIV)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3714823 0.01418009  2.561983 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.07860935
+## 
+## $CI_high
+## [1] 0.6053262</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and sex</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$gender)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3721129 0.01400406   2.56703 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.07933659
+## 
+## $CI_high
+## [1] 0.6057896</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and TMS dose</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$dose_weighted_vlPFC)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3057999 0.04612664  2.056594 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.004535691
+## 
+## $CI_high
+## [1] 0.5561731</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and mean left hemisphere gray matter evoked response (global BOLD signal change)</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, abs(vlPFC.TMS.ER.HO25$left_gm))
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3086898 0.04400417  2.078066 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.007726637
+## 
+## $CI_high
+## [1] 0.5583732</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and site of stimulation-amygdala functional connectivity (baseline fMRI scan)</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$rs.b.GSRDNS.amitLBLA)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3147901 0.03978399  2.123601 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.01448281
+## 
+## $CI_high
+## [1] 0.5630059</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and TMS site of stimulation Y and Z MNI coordinates</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, SOS.coordinates$Y, SOS.coordinates$Z)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3896325 0.01075406  2.675713 45  3 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.09966499
+## 
+## $CI_high
+## [1] 0.6186014</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and DWI scan motion (mean framewise displacement)</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$DWI_motion_meanFD)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3594197 0.01792667  2.466211 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.0647589
+## 
+## $CI_high
+## [1] 0.596431</code></pre>
 <ul>
 <li>FD-evoked response association controlling for age and TMS-fMRI scan motion (mean RMS)</li>
 </ul>
 <pre class="r"><code>covs &lt;- data.frame(demographics$age, demographics$PreAmygdala_TMSfMRI_RelMeanRMS)
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))</code></pre>
+result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_amygdala), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##   estimate   p.value statistic  n gp   Method
 ## 1 0.372649 0.0138559  2.571324 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.07995503
+## 
+## $CI_high
+## [1] 0.6061835</code></pre>
 <ul>
 <li>FD-evoked response association using Harvard Oxford amygdala ROI with a stricter anatomical threshold (maxprob-thr50)</li>
 </ul>
@@ -695,9 +803,16 @@ pcor.test(subset.data$fixels.FD_mean_5, subset.data$vlPFC.TMS.ER.HO25.left_amygd
 <h2>Pathway fiber density is not associated with TMS evoked responses in the majority of subcortical structures</h2>
 <p> </p>
 <p><strong>Higher fiber density in the vlPFC-amygdala pathway was additionally associated with a larger TMS-evoked response in the left hippocampus, controlling for age</strong></p>
-<pre class="r"><code>pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_hippocampus), demographics$age, method=c(&quot;spearman&quot;))</code></pre>
+<pre class="r"><code>result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO25$left_hippocampus), demographics$age, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate      p.value statistic  n gp   Method
 ## 1 0.5371747 0.0001701558  4.127338 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.2810357
+## 
+## $CI_high
+## [1] 0.7218733</code></pre>
 <p><strong>However, fiber density in the vlPFC-amygdala pathway was NOT associated with TMS-evoked response magnitude in any other left hemisphere subcortical structure</strong></p>
 <pre class="r"><code>cor.tests.lhsubcortical.rho &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x) {pcor.test(abs(x),fixels$FD_mean_5, demographics$age, method=c(&quot;spearman&quot;))$estimate})) #rho of FD-evoked response partial correlation for remaining lh subcortical regions
 cor.tests.lhsubcortical.pval &lt;- as.data.frame(lapply(vlPFC.TMS.ER.HO25.leftsubcortical, function(x) {pcor.test(abs(x),fixels$FD_mean_5, demographics$age, method=c(&quot;spearman&quot;))$p.value})) #p-value of FD-evoked response partial correlation for remaining lh subcortical regions
@@ -762,9 +877,16 @@ FD.ER.LHSubcortical.Cortests</code></pre>
 <ul>
 <li>Left amygdala</li>
 </ul>
-<pre class="r"><code>pcor.test(fixels$FD_mean_5, abs(dmPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))</code></pre>
+<pre class="r"><code>result &lt;- pcor.test(fixels$FD_mean_5, abs(dmPFC.TMS.ER.HO25$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##     estimate   p.value statistic  n gp   Method
 ## 1 0.08733705 0.5729382 0.5681799 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] -0.220146
+## 
+## $CI_high
+## [1] 0.3790329</code></pre>
 </div>
 
 
