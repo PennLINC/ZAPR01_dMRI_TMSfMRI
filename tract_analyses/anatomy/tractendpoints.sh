@@ -13,8 +13,5 @@ fslmaths $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/Amygdala
 #identify vlPFC endpoints only (remove amygdala endpoints)
 fslmaths $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints.nii.gz -sub $ZAP/templates/ROIs/HarvardOxford-sub-maxprob-thr25-1mm-LHamygdala-inFODTemplate.nii.gz  $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz
 fslmaths $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz -thr 0 $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz
-
-#register vlPFC voxel map to MNI space
-antsApplyTransforms -d 3 -i $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz -r /usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz -o $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC-inMNIspace.nii.gz -n NearestNeighbor -t [$ZAP/templates/FSL_HCP1065_FA_1.3mm-inFODTemplate0GenericAffine.mat,1] -t $ZAP/templates/FSL_HCP1065_FA_1.3mm-inFODTemplateInverseWarped.nii.gz
-fslmaths $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC-inMNIspace.nii.gz -dilM $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC-inMNIspace.nii.gz #dilate to take up the voxel
+fslmaths $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz -dilM $ZAP/mrtrix_fixelanalysis/siteofstim_subcortical_tracts/voxels/AmygdalaSOS-LHAmygdalaROI25-tracts-endpoints-vlPFC.nii.gz
 
