@@ -50,9 +50,9 @@ datal$sign <- as.factor(vlPFC.TMS.ER.HO25$left_amygdala_sign)
 jpeg("../../Figures/Images/LeftAmygdala_EvokedResponseMagnitude_RainCloudPlot.jpg", units="in", width=7.3, height=6.6, res=800)
 
 ggplot(data = datal, aes(y = abs(ER), x = Region, fill = Region)) +
-geom_flat_violin(position = position_nudge(x = .25, y = 0), alpha = .99, fill = c("#3f55a5")) +
-geom_point(aes(y=abs(ER), fill=sign, color=sign), pch = 21, position = position_jitter(width = .15), size = 3.15, stroke = .5, alpha = .85) +
-geom_boxplot(width = .13, outlier.shape = NA, alpha = 0.5, fill = c("#3f55a5")) +
+geom_flat_violin(position = position_nudge(x = .0, y = 0), alpha = .99, fill = c("#3f55a5")) +
+geom_point(aes(y=abs(ER), x=.75, fill=sign, color=sign), pch = 21, position = position_jitter(width = .15), size = 3.15, stroke = .5, alpha = .85) +
+geom_boxplot(width = .13, position = position_nudge(x = -.24), outlier.shape = NA, alpha = 0.5, fill = c("#3f55a5")) +
 scale_color_manual(values=c("black","black")) +
 scale_fill_manual(values=c("black","gray65")) +
 expand_limits(x = 3.5) +
