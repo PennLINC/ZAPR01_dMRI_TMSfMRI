@@ -53,6 +53,10 @@ vlPFC.TMS.ER.sgROI <- read.csv("../../output_measures/TMSfMRI_evokedresponse/Pre
 vlPFC.TMS.ER.sgROI <- vlPFC.TMS.ER.sgROI[,-(3:4)]
 colnames(vlPFC.TMS.ER.sgROI) <- c("Case","File","sgACC")
 
+vlPFC.TMS.ER.aparcaseg <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_FreeSurfer-LeftAmygdala.csv", header=FALSE, sep='\t')
+vlPFC.TMS.ER.aparcaseg <- vlPFC.TMS.ER.aparcaseg[,-(3:4)]
+colnames(vlPFC.TMS.ER.aparcaseg) <- c("Case","File","left_amygdala")
+
 #sgACC-target dmPFC TMS
 dmPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
 dmPFC.TMS.ER.HO25 <- dmPFC.TMS.ER.HO25[,-(3:4)]
@@ -236,7 +240,16 @@ cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 
 * FD-evoked response association using Harvard Oxford amygdala ROI with a stricter anatomical threshold (maxprob-thr50)
 ```{r}
-pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO50$left_amygdala), demographics$age, method=c("spearman"))
+result <- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO50$left_amygdala), demographics$age, method=c("spearman"))
+result
+cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
+```
+
+* FD-evoked response association using individual-specific left amygdala parcellations generated with Freesurfer 
+```{r}
+result <- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.aparcaseg$left_amygdala), demographics$age, method=c("spearman"))
+result
+cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 ```
 
 * FD-evoked response association at varying fixel streamline mapping thresholds (tck2fixel thresholds)

@@ -479,6 +479,10 @@ vlPFC.TMS.ER.sgROI &lt;- read.csv(&quot;../../output_measures/TMSfMRI_evokedresp
 vlPFC.TMS.ER.sgROI &lt;- vlPFC.TMS.ER.sgROI[,-(3:4)]
 colnames(vlPFC.TMS.ER.sgROI) &lt;- c(&quot;Case&quot;,&quot;File&quot;,&quot;sgACC&quot;)
 
+vlPFC.TMS.ER.aparcaseg &lt;- read.csv(&quot;../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_FreeSurfer-LeftAmygdala.csv&quot;, header=FALSE, sep=&#39;\t&#39;)
+vlPFC.TMS.ER.aparcaseg &lt;- vlPFC.TMS.ER.aparcaseg[,-(3:4)]
+colnames(vlPFC.TMS.ER.aparcaseg) &lt;- c(&quot;Case&quot;,&quot;File&quot;,&quot;left_amygdala&quot;)
+
 #sgACC-target dmPFC TMS
 dmPFC.TMS.ER.HO25 &lt;- read.csv(&quot;../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_HO25_Subcortical.csv&quot;, header=FALSE, sep=&#39;\t&#39;)
 dmPFC.TMS.ER.HO25 &lt;- dmPFC.TMS.ER.HO25[,-(3:4)]
@@ -771,9 +775,29 @@ result</code></pre>
 <ul>
 <li>FD-evoked response association using Harvard Oxford amygdala ROI with a stricter anatomical threshold (maxprob-thr50)</li>
 </ul>
-<pre class="r"><code>pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO50$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))</code></pre>
+<pre class="r"><code>result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.HO50$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))
+result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
 ## 1 0.3137912 0.03805643  2.141777 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.01337469
+## 
+## $CI_high
+## [1] 0.5622484</code></pre>
+<ul>
+<li>FD-evoked response association using individual-specific left amygdala parcellations generated with Freesurfer</li>
+</ul>
+<pre class="r"><code>result &lt;- pcor.test(fixels$FD_mean_5, abs(vlPFC.TMS.ER.aparcaseg$left_amygdala), demographics$age, method=c(&quot;spearman&quot;))
+result</code></pre>
+<pre><code>##    estimate    p.value statistic  n gp   Method
+## 1 0.3578798 0.01707171  2.483836 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.06299884
+## 
+## $CI_high
+## [1] 0.5952912</code></pre>
 <ul>
 <li>FD-evoked response association at varying fixel streamline mapping thresholds (tck2fixel thresholds)</li>
 </ul>
