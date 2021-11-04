@@ -115,17 +115,21 @@ FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical 
 Figure 4A
 ```{r}
 FD_agecorrected <- lm(fixels$FD_mean_5 ~ demographics$age)
-plotdata <- data.frame(FD_agecorrected$residuals, vlPFC.TMS.ER.HO25$left_amygdala)
+plotdata <- data.frame(FD_agecorrected$residuals, vlPFC.TMS.ER.HO25$left_amygdala, vlPFC.TMS.ER.HO25$left_amygdala_sign)
+plotdata$vlPFC.TMS.ER.HO25.left_amygdala_sign <- as.factor(plotdata$vlPFC.TMS.ER.HO25.left_amygdala_sign)
 
-jpeg("../../Figures/Images/EvokedResponseMagnitude_PathwayFD_AgeCorrected_Scatterplot.jpg", units="in", width=7.3, height=6.6, res=800)
+jpeg("../../Figures/Images/EvokedResponseMagnitudeColored_PathwayFD_AgeCorrected_Scatterplot.jpg", units="in", width=7.3, height=6.6, res=800)
 
 ggplot(plotdata, aes(y=abs(vlPFC.TMS.ER.HO25.left_amygdala), x=FD_agecorrected.residuals, )) +
-geom_point(color = "white", fill = "#85629f", shape=21, size=4.5) +
+geom_point(aes(y=abs(vlPFC.TMS.ER.HO25.left_amygdala), x=FD_agecorrected.residuals, color = vlPFC.TMS.ER.HO25.left_amygdala_sign, fill = vlPFC.TMS.ER.HO25.left_amygdala_sign), shape=21, size=4.5) +
+scale_color_manual(values=c("white","white")) +
+scale_fill_manual(values=c("#66467d","#cab2db")) +
 labs(y="\nLeft Amygdala Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
 geom_smooth(method='lm', se=TRUE, fill=alpha(c("gray70"),.7), col="black") +
 theme(
 axis.title.x=element_blank(),
 axis.title.y=element_blank(),
+legend.position = "none",
 axis.line = element_line(color = "black"),
 axis.text=element_text(family="Arial",size=32, color = "black"),
 panel.background=element_blank()) +
