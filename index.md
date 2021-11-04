@@ -1,25 +1,25 @@
 <br>
 <br>
-# CORTICAL-SUBCORTICAL WHITE MATTER SUPPORTS TMS ENGAGEMENT OF THE AMYGDALA
+# CORTICAL-SUBCORTICAL STRUCTURAL CONNECTIONS SUPPORT TMS ENGAGEMENT OF THE AMYGDALA
 
 ### Project Lead
 Valerie J. Sydnor
 
 ### Faculty Leads
-Desmond Oathes  
+Desmond J. Oathes  
 Theodore D. Satterthwaite
 
 ### Analytic Replicator
 Matthew Cieslak
 
 ### Collaborators 
-Romain Duprat, Hannah Long, Matthew W. Flounders, Joseph Deluisi, Morgan Scully, Nicholas L. Balderston, Yvette I. Sheline, Danielle S. Bassett
+Romain Duprat, Hannah Long, Matthew W. Flounders, Joseph Deluisi, Morgan Scully, Nicholas L. Balderston, Yvette I. Sheline, Dani S. Bassett
 
 ### Project Start Date
 August 2018
 
 ### Current Project Status
-Manuscript Preparation
+Manuscript in Submission
 
 ### Datasets
 ZAPR01-Healthy Controls
@@ -114,10 +114,7 @@ The scripts in [/tract_analyses/anatomy](https://github.com/PennLINC/ZAPR01_dMRI
 To assess whether microstructural (FD) and macrostructural (logFC) properties of the vlPFC-amygdala white matter pathway were associated with the magnitude of TMS-evoked functional response in the amydala (and to conduct related sensitivity and specificity analyses), vlPFC-amygdala white matter pathway fixel measures (FD, logFC, FDC) were extracted for each subject with [/tract_analyses/fixelmeasures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/tract_analyses/fixelmeasures.sh) and TMS-fMRI functional evoked response data were extracted with [/TMSfMRI_EvokedResponse/TMSfMRI_SignalChange_TMSon_Measures.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/gh-pages/TMSfMRI_evokedresponse/TMSfMRI_SignalChange_TMSon_Measures.sh). Note: the fMRI data were preprocessed with fMRIPrep and postprocessed with XCP to generate single pulse TMS-fMRI BOLD signal change (i.e. evoked response) maps, as detailed in Duprat et al. (In preparation).
 
 ### Statistical Analysis
-Manuscript statistics were conducted in R and are included in [/statistics/dMRI_TMSfMRI_statistics.Rmd](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/statistics/dMRI_TMSfMRI_statistics.Rmd). The association between **vlPFC-amygdala pathway fiber density** and **magnitude of TMS-evoked amygdala BOLD signal change** was assessed with a partial Spearman's correlation:
-   ```R
-   pcor.test(WM.fiberdensity, abs(amygdala.evokedresponse), age, method = c("spearman"))
-   ``` 
+Manuscript statistics were conducted in R and are included in [/statistics/dMRI_TMSfMRI_statistics.Rmd](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/statistics/dMRI_TMSfMRI_statistics.Rmd).
 
 ### Visualization
 Manuscript figures were generated using R, mrview, fsleyes, and Slicer. Slicer was used to visualize TMS sites of stimulation (Figure 2A, Figure 4C); the center of gravity for all vlPFC stimulation sites / control stimulation sites was calculated with [/sites_of_stim/stimsites_vlPFC_control_COG.sh](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/sites_of_stim/stimsites_vlPFC_control_COG.sh). Mrview was used to visualize the vlPFC-amygdala pathway, as well as pathway streamlines, FODs, and fixels (Figure 3A). Fsleyes was used to visualize pathway anatomy overlaid on the JHU white matter atlas (Figure 3B). The R code in [/visualization/dMRI_TMSfMRI_visualization.Rmd](https://github.com/PennLINC/ZAPR01_dMRI_TMSfMRI/blob/master/visualization/dMRI_TMSfMRI_visualization.Rmd) was written to generate all graphs (Figure 2B, Figure 2C, Figure 4A, Figure 4B, Figure 4D).
