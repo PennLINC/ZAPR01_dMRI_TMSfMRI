@@ -17,42 +17,24 @@ library(reshape2)
 library(PupillometryR)
 ```
 
-*Read in Data*
-
-Participant Demographics and TMS Administration Information
 ```{r}
-demographics <- read.csv("../../output_measures/ZAPR01_DWI_TMSfMRI_Demographics.csv", header = TRUE)
+df.ZAP <- read.csv("../statistics/Sydnor2022_ZAPR01_Amygdala_TMSfMRIdMRI.csv")
 ```
 
-Tract-Based Mean Fixel Measures
-```{r}
-fixels <- read.csv("../../output_measures/fixel_measures/AmygdalaSOS-LHAmygdalaROI25-FixelMeasures.csv", header = TRUE)
-```
-
-Single Pulse TMS-fMRI BOLD Signal Change (Evoked Response) Measures
-```{r}
-#Amygdala-targeted vlPFC TMS
-vlPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
-vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25[,-(3:4)]
-colnames(vlPFC.TMS.ER.HO25) <- c("Case","File","left_wm","left_gm","left_ventricle","left_thalamus","left_caudate","left_putamen","left_pallidum","brainstem","left_hippocampus","left_amygdala","left_accumbens","right_wm","right_gm","right_ventricle","right_thalamus","right_caudate","right_putamen","right_pallidum","right_hippocampus","right_amygdala","right_accumbens")
-vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25 %>% mutate(left_amygdala_sign = case_when(left_amygdala < 0 ~ -1, left_amygdala >0 ~ 1))
-```
-
-*Visualize Data*
-
-FIGURE 2: AMYGDALA BOLD SIGNAL CHANGE FOLLOWING TMS ADMINISTERED TO VLPFC CONNECTIVITY PEAKS
+**FIGURE 2: Amygdala BOLD Signal Change Following TMS Administered to vlPFC Connectivity Peaks**
 
 Figure 2B
+
 ```{r}
-datal <- melt(vlPFC.TMS.ER.HO25, id.vars = c("Case"), measure.vars = c("left_amygdala"), variable.name = "Region", value.name = "ER")
-datal$sign <- as.factor(vlPFC.TMS.ER.HO25$left_amygdala_sign)
+datal <- melt(df.ZAP, id.vars = c("Case"), measure.vars = c("left_amygdala.vlPFCTMS"), variable.name = "Region", value.name = "ER")
+datal$sign <- as.factor(df.ZAP$left_amygdala_sign.vlPFCTMS)
 
-jpeg("../../Figures/Images/LeftAmygdala_EvokedResponseMagnitude_RainCloudPlot.jpg", units="in", width=7.3, height=6.6, res=800)
+jpeg("../../Figures/Images/LeftAmygdala_RawEvokedResponseMagnitude_RainCloudPlot.jpg", units="in", width=7.3, height=7, res=800)
 
-ggplot(data = datal, aes(y = abs(ER), x = Region, fill = Region)) +
-geom_flat_violin(position = position_nudge(x = .0, y = 0), alpha = .99, fill = c("#3f55a5")) +
-geom_point(aes(y=abs(ER), x=.75, fill=sign, color=sign), pch = 21, position = position_jitter(width = .15), size = 3.15, stroke = .5, alpha = .85) +
-geom_boxplot(width = .13, position = position_nudge(x = -.24), outlier.shape = NA, alpha = 0.5, fill = c("#3f55a5")) +
+ggplot(data = datal, aes(y = ER, x = Region, fill = Region)) +
+geom_flat_violin(position = position_nudge(x = .12, y = 0), alpha = .99, fill = c("#3f55a5")) +
+geom_point(aes(y=ER, x=.8), pch = 21, position = position_jitter(width = .2), size = 4, stroke = .5, alpha = .85) +
+geom_boxplot(width = .13, position = position_nudge(x = -.23), outlier.shape = NA, alpha = 0.5, fill = c("#3f55a5")) +
 scale_color_manual(values=c("black","black")) +
 scale_fill_manual(values=c("black","gray65")) +
 expand_limits(x = 3.5) +
@@ -70,17 +52,18 @@ panel.grid.minor = element_blank(),
 panel.grid.major = element_blank(),
 axis.line.x = element_line(colour = 'black', size=.8, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=.8, linetype='solid')) +
-scale_y_continuous(breaks = c(0,0.2,0.4,0.6))
+scale_y_continuous(breaks = c(-0.6,-0.3,0,0.3,0.6), limits = c(-0.58,0.61)) 
 ```
 
 
 Figure 2C
-```{r}
-ERdata <- vlPFC.TMS.ER.HO25[,c(6,7,8,9,11,13)] 
-ERdata.diff <- as.data.frame(lapply(ERdata, function(x){(abs(vlPFC.TMS.ER.HO25$left_amygdala) - abs(x))}))
-ERdata.diff$Case <- vlPFC.TMS.ER.HO25$Case
 
-datal <- melt(ERdata.diff, id.vars = c("Case"), measure.vars = c("left_pallidum", "left_caudate",  "left_putamen","left_hippocampus","left_thalamus","left_accumbens"), variable.name = "Region", value.name = "ERdiff")
+```{r, warning=F}
+ERdata <- df.ZAP[,c(10,11,12,13,14,16)] 
+ERdata.diff <- as.data.frame(lapply(ERdata, function(x){(abs(df.ZAP$left_amygdala.vlPFCTMS) - abs(x))}))
+ERdata.diff$Case <- df.ZAP$Case
+
+datal <- melt(ERdata.diff, id.vars = c("Case"), measure.vars = c("left_pallidum.vlPFCTMS", "left_caudate.vlPFCTMS",  "left_putamen.vlPFCTMS","left_hippocampus.vlPFCTMS","left_thalamus.vlPFCTMS","left_accumbens.vlPFCTMS"), variable.name = "Region", value.name = "ERdiff")
 
 fills <- c("#293d8a","#3f55a5","#7689cc","#88a2d1","#9ab5e3","#b4c9ed")
 
@@ -110,18 +93,19 @@ geom_hline(yintercept=0, size = 0.5)
 ```
 
 
-FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical TMS-Evoked Responses
+**FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical TMS Evoked Responses**
 
 Figure 4A
+
 ```{r}
-FD_agecorrected <- lm(fixels$FD_mean_5 ~ demographics$age)
-plotdata <- data.frame(FD_agecorrected$residuals, vlPFC.TMS.ER.HO25$left_amygdala, vlPFC.TMS.ER.HO25$left_amygdala_sign)
-plotdata$vlPFC.TMS.ER.HO25.left_amygdala_sign <- as.factor(plotdata$vlPFC.TMS.ER.HO25.left_amygdala_sign)
+FD_agecorrected <- lm(df.ZAP$FD_mean_5 ~ df.ZAP$age)
+plotdata <- data.frame(FD_agecorrected$residuals, df.ZAP$left_amygdala.vlPFCTMS, df.ZAP$left_amygdala_sign.vlPFCTMS)
+plotdata$df.ZAP.left_amygdala_sign.vlPFCTMS <- as.factor(plotdata$df.ZAP.left_amygdala_sign.vlPFCTMS)
 
 jpeg("../../Figures/Images/EvokedResponseMagnitudeColored_PathwayFD_AgeCorrected_Scatterplot.jpg", units="in", width=7.3, height=6.6, res=800)
 
-ggplot(plotdata, aes(y=abs(vlPFC.TMS.ER.HO25.left_amygdala), x=FD_agecorrected.residuals, )) +
-geom_point(aes(y=abs(vlPFC.TMS.ER.HO25.left_amygdala), x=FD_agecorrected.residuals, color = vlPFC.TMS.ER.HO25.left_amygdala_sign, fill = vlPFC.TMS.ER.HO25.left_amygdala_sign), shape=21, size=4.5) +
+ggplot(plotdata, aes(y=abs(df.ZAP.left_amygdala.vlPFCTMS), x=FD_agecorrected.residuals, )) +
+geom_point(aes(y=abs(df.ZAP.left_amygdala.vlPFCTMS), x=FD_agecorrected.residuals, color = df.ZAP.left_amygdala_sign.vlPFCTMS, fill = df.ZAP.left_amygdala_sign.vlPFCTMS), shape=21, size=4.5) +
 scale_color_manual(values=c("white","white")) +
 scale_fill_manual(values=c("#66467d","#cab2db")) +
 labs(y="\nLeft Amygdala Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
@@ -137,46 +121,33 @@ scale_y_continuous(limits = c(0,0.65)) +
 scale_x_continuous(limits = c(-0.06,0.08), breaks = c(-0.05, 0, 0.05))
 ```
 
-
 Figure 4B
+
 ```{r}
-ER.FD.partialR <- data.frame(Region=character(), rho=double())
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Hipp", rho= 0.537)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg", rho= 0.360)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Pal", rho= 0.112)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Thal", rho= 0.0171)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Caud", rho= 0.0128)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Acc", rho= -0.0221)
-ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Put", rho= -0.1029)
+jpeg("../../Figures/Images/SignedEvokedResponse_PathwayFD_AgeCorrected_Scatterplot.jpg", units="in", width=7.3, height=6.6, res=800)
 
-jpeg("../../Figures/Images/EvokedResponseMagnitude_PathwayFD_RhoPlot.jpg", units="in", width=7.3, height=6.6, res=800)
-
-plot_order <- c('Hipp', 'Amyg', 'Pal', "Thal", "Caud", "Acc","Put")
-
-ggplot(data=ER.FD.partialR, aes(x=(factor(Region, level = plot_order)), y=rho, fill=Region)) + geom_col() + 
-labs(x="Subcortical Regions") +
-labs(y="\nSpearman's Rho\n") +
-theme_minimal()+
+ggplot(plotdata, aes(y=df.ZAP.left_amygdala.vlPFCTMS, x=FD_agecorrected.residuals, group=df.ZAP.left_amygdala_sign.vlPFCTMS)) +
+geom_point(aes(y=df.ZAP.left_amygdala.vlPFCTMS, x=FD_agecorrected.residuals, color = df.ZAP.left_amygdala_sign.vlPFCTMS, fill = df.ZAP.left_amygdala_sign.vlPFCTMS), shape=21, size=4.5) +
+scale_color_manual(values=c("#66467d","#cab2db")) +
+scale_fill_manual(values=c("#66467d","#cab2db")) +
+labs(y="\nLeft Amygdala Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
+geom_smooth(method='lm', se=FALSE, size=2,  fullrange = T, aes(color=df.ZAP.left_amygdala_sign.vlPFCTMS)) +
 theme(
 axis.title.x=element_blank(),
 axis.title.y=element_blank(),
-axis.line = element_line(colour = "black"),
-axis.text.y = element_text(family="Arial",size=32, color = "black"),
-axis.text.x = element_blank(),
-panel.grid.major.y = element_blank(),
-panel.grid.major.x = element_blank(),
-panel.grid.minor.y = element_blank(),
-axis.ticks = element_line(),
-legend.position = "none") +
-scale_fill_manual(values=c("#85629f", "#85629f", "#85629f","#85629f","#85629f","#85629f","#85629f"))
+legend.position = "none",
+axis.line = element_line(color = "black"),
+axis.text=element_text(family="Arial",size=32, color = "black"),
+panel.background=element_blank()) +
+scale_y_continuous(limits = c(-0.62,0.65), breaks = c(-0.6,-0.3,0,0.3,0.6)) +
+scale_x_continuous(limits = c(-0.06,0.08), breaks = c(-0.05, 0, 0.05))
 ```
-
 Figure 4D
+
 ```{r}
 ER.FD.partialR <- data.frame(Region=character(), rho=double())
 ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg.vlPFC", rho= 0.360)
 ER.FD.partialR <- ER.FD.partialR %>% add_row(Region= "Amyg.control", rho= 0.0873)
-
 
 jpeg("../../Figures/Images/AmygdalaEvokedResponse_PathwayFD_vlPFCvControl_RhoPlot.jpg", units="in", width=4, height=6.6, res=800)
 
