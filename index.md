@@ -1,7 +1,7 @@
 <br>
 <br>
 # A pathway for amygdala TMS neuromodulation 
-*This study demonstrated that transcranial magnetic stimulation applied to the ventrolateral prefrontal cortex (vlPFC) exerts acute and focal neuromodulatory effects on the amygdala through the engagement of a vlPFC-amygdala white matter pathway.*
+*This study demonstrated that transcranial magnetic stimulation applied to the ventrolateral prefrontal cortex (vlPFC) exerts acute and focal neuromodulatory effects on the amygdala by engaging a vlPFC-amygdala white matter pathway.*
 
 
 ### Project Lead
