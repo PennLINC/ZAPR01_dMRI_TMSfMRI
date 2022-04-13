@@ -32,6 +32,7 @@ library(lsr)
 demographics <- read.csv("../../output_measures/ZAPR01_DWI_TMSfMRI_Demographics.csv", header = TRUE)
 demographics$Case <- paste0("sub-ZAPR01", demographics$ID)
 demographics <- demographics %>% dplyr::select(Case, age, gender, eTIV, rs.b.GSRDNS.amitLBLA, dose_weighted_vlPFC, stimulator_output_vlPFC, PreAmygdala_TMSfMRI_RelMeanRMS, DWI_motion_meanFD)
+colnames(demographics)[3] <- "sex"
 ```
 
 *Tract-Based Mean Fixel Measures*
@@ -43,6 +44,8 @@ fixels <- fixels %>% dplyr::select(Case, FD_mean_5, logFC_mean_5, FD_mean_2, FD_
 *Single Pulse TMS-fMRI BOLD Signal Change (Evoked Response) Measures*
 ```{r}
 #Amygdala-targeted vlPFC TMS
+
+###Harvard Oxford atlas
 vlPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
 vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25[,-(3:4)]
 colnames(vlPFC.TMS.ER.HO25) <- c("Case","File","left_wm.vlPFCTMS","left_gm.vlPFCTMS","left_ventricle.vlPFCTMS","left_thalamus.vlPFCTMS","left_caudate.vlPFCTMS","left_putamen.vlPFCTMS","left_pallidum.vlPFCTMS","brainstem.vlPFCTMS","left_hippocampus.vlPFCTMS","left_amygdala.vlPFCTMS","left_accumbens.vlPFCTMS","right_wm.vlPFCTMS","right_gm.vlPFCTMS","right_ventricle.vlPFCTMS","right_thalamus.vlPFCTMS","right_caudate.vlPFCTMS","right_putamen.vlPFCTMS","right_pallidum.vlPFCTMS","right_hippocampus.vlPFCTMS","right_amygdala.vlPFCTMS","right_accumbens.vlPFCTMS")
@@ -50,12 +53,21 @@ vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25 %>% mutate(left_amygdala_sign.vlPFCTMS = 
 vlPFC.TMS.ER.HO25$left_amygdala_sign.vlPFCTMS <- as.factor(vlPFC.TMS.ER.HO25$left_amygdala_sign.vlPFCTMS)
 vlPFC.TMS.ER.HO25 <- vlPFC.TMS.ER.HO25 %>% dplyr::select(Case, left_thalamus.vlPFCTMS, left_caudate.vlPFCTMS, left_putamen.vlPFCTMS, left_pallidum.vlPFCTMS, left_hippocampus.vlPFCTMS, left_amygdala.vlPFCTMS, left_accumbens.vlPFCTMS, right_thalamus.vlPFCTMS, right_caudate.vlPFCTMS, right_putamen.vlPFCTMS, right_pallidum.vlPFCTMS, right_hippocampus.vlPFCTMS, right_amygdala.vlPFCTMS, right_accumbens.vlPFCTMS, left_amygdala_sign.vlPFCTMS)
 
+###Amygdala freesurfer segmentations
 vlPFC.TMS.ER.aparcaseg <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_FreeSurfer-LeftAmygdala.csv", header=FALSE, sep='\t')
 vlPFC.TMS.ER.aparcaseg <- vlPFC.TMS.ER.aparcaseg[,-(3:4)]
 colnames(vlPFC.TMS.ER.aparcaseg) <- c("Case","File","left_amygdala_freesurfer.vlPFCTMS")
 vlPFC.TMS.ER.aparcaseg <- vlPFC.TMS.ER.aparcaseg %>% dplyr::select(Case, left_amygdala_freesurfer.vlPFCTMS)
 
+###Amygdala nuclei
+vlPFC.TMS.ER.Juelich50 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreAmygdala_TMSfMRI_EvokedResponse_Juelich_AmygdalaNuclei.csv", header = F, sep = "\t")
+vlPFC.TMS.ER.Juelich50 <- vlPFC.TMS.ER.Juelich50[,-(3:4)]
+colnames(vlPFC.TMS.ER.Juelich50) <- c("Case","File","left_centromedial_amygdala.vlPFCTMS","left_basolateral_amygdala.vlPFCTMS","left_superficial_amygdala.vlPFCTMS")
+vlPFC.TMS.ER.Juelich50 <- vlPFC.TMS.ER.Juelich50 %>% dplyr::select(-File)
+
 #sgACC-targeted dlPFC TMS
+
+###Harvard Oxford atlas
 dmPFC.TMS.ER.HO25 <- read.csv("../../output_measures/TMSfMRI_evokedresponse/PreSgACC_TMSfMRI_EvokedResponse_HO25_Subcortical.csv", header=FALSE, sep='\t')
 dmPFC.TMS.ER.HO25 <- dmPFC.TMS.ER.HO25[,-(3:4)]
 colnames(dmPFC.TMS.ER.HO25) <- c("Case","File","left_wm.dlPFCTMS","left_gm.dlPFCTMS","left_ventricle.dlPFCTMS","left_thalamus.dlPFCTMS","left_caudate.dlPFCTMS","left_putamen.dlPFCTMS","left_pallidum.dlPFCTMS","brainstem.dlPFCTMS","left_hippocampus.dlPFCTMS","left_amygdala.dlPFCTMS","left_accumbens.dlPFCTMS","right_wm.dlPFCTMS","right_gm.dlPFCTMS","right_ventricle.dlPFCTMS","right_thalamus.dlPFCTMS","right_caudate.dlPFCTMS","right_putamen.dlPFCTMS","right_pallidum.dlPFCTMS","right_hippocampus.dlPFCTMS","right_amygdala.dlPFCTMS","right_accumbens.dlPFCTMS")
@@ -71,7 +83,7 @@ SOS.coordinates <- SOS.coordinates %>% dplyr::select(Case, X, Y, Z)
 **Create ZAPR01 Measures Dataframe**
 
 ```{r}
-df.list <- list(demographics, vlPFC.TMS.ER.HO25, vlPFC.TMS.ER.aparcaseg, dmPFC.TMS.ER.HO25, fixels, SOS.coordinates)
+df.list <- list(demographics, vlPFC.TMS.ER.HO25, vlPFC.TMS.ER.aparcaseg, vlPFC.TMS.ER.Juelich50, dmPFC.TMS.ER.HO25, fixels, SOS.coordinates)
 df.ZAP <- Reduce(function(x,y) merge(x,y, all=TRUE, sort=F), df.list) 
 write.csv(x = df.ZAP,file = "./Sydnor2022_ZAPR01_Amygdala_TMSfMRIdMRI.csv", quote = F, row.names = F)
 ```
@@ -102,6 +114,32 @@ cor_to_ci(cor = result$estimate, n = 45, ci = 0.95, method = "pearson")
 sum(df.ZAP$left_amygdala.vlPFCTMS < 0)
 t.test(df.ZAP$left_amygdala.vlPFCTMS, alternative = "two.sided") 
 cohensD(df.ZAP$left_amygdala.vlPFCTMS, mu=0)
+```
+
+**The signed TMS evoked response was significantly negative in the basolateral amygdala, yet not in centromedial of superficial amygdala divisions**
+
+* Basolateral amygdala
+
+```{r}
+sum(df.ZAP$left_basolateral_amygdala.vlPFCTMS < 0)
+t.test(df.ZAP$left_basolateral_amygdala.vlPFCTMS, alternative = "two.sided") 
+cohensD(df.ZAP$left_basolateral_amygdala.vlPFCTMS, mu=0)
+```
+
+* Centromedial amygdala
+
+```{r}
+sum(df.ZAP$left_centromedial_amygdala.vlPFCTMS < 0)
+t.test(df.ZAP$left_centromedial_amygdala.vlPFCTMS, alternative = "two.sided") 
+cohensD(df.ZAP$left_centromedial_amygdala.vlPFCTMS, mu=0)
+```
+
+* Superficial amygdala
+
+```{r}
+sum(df.ZAP$left_superficial_amygdala.vlPFCTMS < 0)
+t.test(df.ZAP$left_superficial_amygdala.vlPFCTMS, alternative = "two.sided") 
+cohensD(df.ZAP$left_superficial_amygdala.vlPFCTMS, mu=0)
 ```
 
 **The sign of the amygdala TMS evoked response (positive or negative evoked response) was not related to stim site-amygdala functional connectivity strength or to stim site Y and Z coordinates**
@@ -290,7 +328,7 @@ cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 
 * FD-evoked response association controlling for age and sex
 ```{r}
-covs <- data.frame(df.ZAP$age, df.ZAP$gender)
+covs <- data.frame(df.ZAP$age, df.ZAP$sex)
 result <- pcor.test(df.ZAP$FD_mean_5, abs(df.ZAP$left_amygdala.vlPFCTMS), covs, method=c("spearman"))
 result
 cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")

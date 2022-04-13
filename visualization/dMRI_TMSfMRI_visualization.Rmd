@@ -15,6 +15,7 @@ library(plyr)
 library(RColorBrewer)
 library(reshape2)
 library(PupillometryR)
+library(ggcorrplot)
 ```
 
 ```{r}
@@ -92,6 +93,47 @@ scale_y_continuous(limits = c(-.725,.55), breaks = c(-.6,-.4,-.2,.2,.4,.6)) +
 geom_hline(yintercept=0, size = 0.5)
 ```
 
+**FIGURE S1: TMS Evoked Responses Within Amygdala Subdivisions**
+
+Figure S1A
+
+```{r}
+Juleich.long <- melt(df.ZAP, id.vars = c("Case"), measure.vars = c("left_basolateral_amygdala.vlPFCTMS", "left_superficial_amygdala.vlPFCTMS", "left_centromedial_amygdala.vlPFCTMS" ), variable.name = "Division", value.name = "ER")
+
+jpeg("../../Figures/Images/LeftAmygdala_Subdivisions_EvokedResponse.jpg", units="in", width=7.6, height=6.5, res=800)
+
+ggplot(data = Juleich.long, aes(y = ER, x = Division)) +
+geom_point(aes(y = ER), fill = "#3f55a5", color = "white", pch = 21, position = position_jitter(width = .25), size = 4.5, stroke = .5, alpha = .85) +
+geom_boxplot(width = .18, position = position_nudge(x = 0), outlier.shape = NA, alpha = 0.6, lwd = 1) +
+theme_bw() +
+theme(
+text = element_text(size = 10),
+axis.title.x = element_blank(),
+axis.title.y = element_blank(),
+axis.text.y = element_text(family="Arial",size=28, color = "black"),
+legend.position = "none",
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=.6, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=.6, linetype='solid')) +
+scale_x_discrete(labels = c("\nBasolateral","\nSuperficial","\nCentromedial")) +
+scale_y_continuous(limits = c(-.81,.8), breaks = c(-.6,-.3,0,.3,.6)) +
+geom_hline(yintercept=0, size = 0.5)
+```
+
+Figure S1B
+
+```{r}
+divisions <- df.ZAP %>% dplyr::select(left_superficial_amygdala.vlPFCTMS, left_centromedial_amygdala.vlPFCTMS,  left_basolateral_amygdala.vlPFCTMS)
+ER.corr <- cor(divisions, method = c("pearson"))
+colnames(ER.corr) <- c("Superficial", "Centromedial", "Basolateral")
+rownames(ER.corr) <- c("Superficial", "Centromedial", "Basolateral")
+
+jpeg("../../Figures/Images/LeftAmygdala_Subdivisions_CorrelationMatrix.jpg", units="in", width=6.5, height=6.5, res=800)
+
+ggcorrplot(ER.corr, method = "square", type = "upper", show.legend = FALSE, show.diag = FALSE, lab = TRUE, lab_size = 8, lab_col = "black", colors = c("#9ab5e3", "white", "#324280"), outline.color=c("white"),  ggtheme = theme_classic())
+```
 
 **FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical TMS Evoked Responses**
 
