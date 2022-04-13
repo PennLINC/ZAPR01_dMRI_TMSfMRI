@@ -343,7 +343,7 @@ cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 
 * FD-evoked response association at varying fixel streamline mapping thresholds (tck2fixel thresholds)
 ```{r}
-fixel.FD.thresholds <- df.ZAP[,c(29,30,31,32,33)]
+fixel.FD.thresholds <- df.ZAP[,c(32,33,34,35,36)]
 cor.tests.threshold.rho <- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c("spearman"))$estimate})) #rho of FD-evoked response partial correlation at varying thresholds
 cor.tests.threshold.p.value <- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c("spearman"))$p.value})) #p-value of FD-evoked response partial correlation at varying thresholds
 FD.ER.Threshold.Cortests <- t(rbind(cor.tests.threshold.rho,cor.tests.threshold.p.value)) #merge and transpose to view results 

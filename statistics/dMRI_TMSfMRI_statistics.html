@@ -1071,19 +1071,19 @@ result</code></pre>
 <ul>
 <li>FD-evoked response association at varying fixel streamline mapping thresholds (tck2fixel thresholds)</li>
 </ul>
-<pre class="r"><code>fixel.FD.thresholds &lt;- df.ZAP[,c(29,30,31,32,33)]
+<pre class="r"><code>fixel.FD.thresholds &lt;- df.ZAP[,c(32,33,34,35,36)]
 cor.tests.threshold.rho &lt;- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c(&quot;spearman&quot;))$estimate})) #rho of FD-evoked response partial correlation at varying thresholds
 cor.tests.threshold.p.value &lt;- as.data.frame(lapply(fixel.FD.thresholds, function(x) {pcor.test(x,abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c(&quot;spearman&quot;))$p.value})) #p-value of FD-evoked response partial correlation at varying thresholds
 FD.ER.Threshold.Cortests &lt;- t(rbind(cor.tests.threshold.rho,cor.tests.threshold.p.value)) #merge and transpose to view results 
 colnames &lt;- c(&quot;rho&quot;,&quot;p.value&quot;)
 colnames(FD.ER.Threshold.Cortests) &lt;- colnames
 FD.ER.Threshold.Cortests</code></pre>
-<pre><code>##                               rho    p.value
-## left_amygdala.dlPFCTMS -0.1575418 0.30710045
-## FD_mean_5               0.3600124 0.01637692
-## logFC_mean_5           -0.0464512 0.76462439
-## FD_mean_2               0.2576578 0.09130590
-## FD_mean_4               0.3794850 0.01106698</code></pre>
+<pre><code>##                  rho    p.value
+## FD_mean_2  0.2576578 0.09130590
+## FD_mean_4  0.3794850 0.01106698
+## FD_mean_6  0.3582656 0.01694421
+## FD_mean_8  0.3686573 0.01380045
+## FD_mean_10 0.3522851 0.01901381</code></pre>
 </div>
 <div id="the-identified-pathway-is-differentially-associated-with-neurostimulation-induced-subcortical-responses" class="section level2">
 <h2>The identified pathway is differentially associated with neurostimulation-induced subcortical responses</h2>
