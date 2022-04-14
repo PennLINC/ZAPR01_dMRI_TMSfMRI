@@ -552,7 +552,7 @@ result</code></pre>
 ## -0.08966967</code></pre>
 <pre class="r"><code>cohensD(df.ZAP$left_amygdala.vlPFCTMS, mu=0)</code></pre>
 <pre><code>## [1] 0.3736675</code></pre>
-<p><strong>The signed TMS evoked response was significantly negative in the basolateral amygdala, yet not in centromedial of superficial amygdala divisions</strong></p>
+<p><strong>The signed TMS evoked response was significantly negative in the basolateral amygdala, but not in centromedial of superficial amygdala divisions</strong></p>
 <ul>
 <li>Basolateral amygdala</li>
 </ul>
@@ -882,6 +882,7 @@ vlPFC.TMS.ERMagnitude.Ttests</code></pre>
 <h2>Pathway fiber density is associated with the magnitude of the TMS-evoked amygdala response</h2>
 <p> </p>
 <p><strong>Higher fiber density in an identified vlPFC-amygdala white matter pathway was associated with a larger TMS-evoked change in left amygdala BOLD signal, controlling for age</strong></p>
+<p>Entire amygdala</p>
 <pre class="r"><code>result &lt;- pcor.test(df.ZAP$FD_mean_5, abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c(&quot;spearman&quot;))
 result</code></pre>
 <pre><code>##    estimate    p.value statistic  n gp   Method
@@ -892,7 +893,19 @@ result</code></pre>
 ## 
 ## $CI_high
 ## [1] 0.5968694</code></pre>
+<p>Basolateral amygdala</p>
+<pre class="r"><code>result &lt;- pcor.test(df.ZAP$FD_mean_5, abs(df.ZAP$left_basolateral_amygdala.vlPFCTMS), df.ZAP$age, method=c(&quot;spearman&quot;))
+result</code></pre>
+<pre><code>##   estimate     p.value statistic  n gp   Method
+## 1 0.419803 0.004556067  2.997564 45  1 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] 0.1352493
+## 
+## $CI_high
+## [1] 0.6403829</code></pre>
 <p><strong>vlPFC-amygdala pathway cross section was not associated with the TMS-evoked response in the left amygdala, controlling for age and estimated total intracranial volume</strong></p>
+<p>Entire amygdala</p>
 <pre class="r"><code>covs &lt;- data.frame(df.ZAP$age, df.ZAP$eTIV)
 result &lt;- pcor.test(df.ZAP$logFC_mean_5, abs(df.ZAP$left_amygdala.vlPFCTMS), covs, method=c(&quot;spearman&quot;))
 result</code></pre>
@@ -904,7 +917,20 @@ result</code></pre>
 ## 
 ## $CI_high
 ## [1] 0.1929602</code></pre>
+<p>Basolateral amygdala</p>
+<pre class="r"><code>covs &lt;- data.frame(df.ZAP$age, df.ZAP$eTIV)
+result &lt;- pcor.test(df.ZAP$logFC_mean_5, abs(df.ZAP$left_basolateral_amygdala.vlPFCTMS), covs, method=c(&quot;spearman&quot;))
+result</code></pre>
+<pre><code>##     estimate   p.value statistic  n gp   Method
+## 1 0.08866702 0.5717942  0.569991 45  2 spearman</code></pre>
+<pre class="r"><code>cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## $CI_low
+## [1] -0.2188703
+## 
+## $CI_high
+## [1] 0.3801801</code></pre>
 <p><strong>Fiber density was associated with the magnitude of the amygdala TMS evoked response in groups of individuals exhibiting both negative (N=30) and positive (N=15) evoked responses</strong></p>
+<p>Entire amygdala</p>
 <pre class="r"><code>summary(lm(abs(df.ZAP$left_amygdala.vlPFCTMS) ~ df.ZAP$FD_mean_5*df.ZAP$left_amygdala_sign.vlPFCTMS + df.ZAP$age))</code></pre>
 <pre><code>## 
 ## Call:

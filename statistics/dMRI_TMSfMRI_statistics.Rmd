@@ -116,7 +116,7 @@ t.test(df.ZAP$left_amygdala.vlPFCTMS, alternative = "two.sided")
 cohensD(df.ZAP$left_amygdala.vlPFCTMS, mu=0)
 ```
 
-**The signed TMS evoked response was significantly negative in the basolateral amygdala, yet not in centromedial of superficial amygdala divisions**
+**The signed TMS evoked response was significantly negative in the basolateral amygdala, but not in centromedial of superficial amygdala divisions**
 
 * Basolateral amygdala
 
@@ -242,14 +242,23 @@ vlPFC.TMS.ERMagnitude.Ttests
 
 **Higher fiber density in an identified vlPFC-amygdala white matter pathway was associated with a larger TMS-evoked change in left amygdala BOLD signal, controlling for age**
 
+Entire amygdala
 ```{r}
 result <- pcor.test(df.ZAP$FD_mean_5, abs(df.ZAP$left_amygdala.vlPFCTMS), df.ZAP$age, method=c("spearman"))
 result
 cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 ```
 
+Basolateral amygdala
+```{r}
+result <- pcor.test(df.ZAP$FD_mean_5, abs(df.ZAP$left_basolateral_amygdala.vlPFCTMS), df.ZAP$age, method=c("spearman"))
+result
+cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
+```
+
 **vlPFC-amygdala pathway cross section was not associated with the TMS-evoked response in the left amygdala, controlling for age and estimated total intracranial volume**
 
+Entire amygdala
 ```{r}
 covs <- data.frame(df.ZAP$age, df.ZAP$eTIV)
 result <- pcor.test(df.ZAP$logFC_mean_5, abs(df.ZAP$left_amygdala.vlPFCTMS), covs, method=c("spearman"))
@@ -257,8 +266,17 @@ result
 cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
 ```
 
+Basolateral amygdala
+```{r}
+covs <- data.frame(df.ZAP$age, df.ZAP$eTIV)
+result <- pcor.test(df.ZAP$logFC_mean_5, abs(df.ZAP$left_basolateral_amygdala.vlPFCTMS), covs, method=c("spearman"))
+result
+cor_to_ci(cor = result$estimate, n = result$n, ci = 0.95, method = "spearman")
+```
+
 **Fiber density was associated with the magnitude of the amygdala TMS evoked response in groups of individuals exhibiting both negative (N=30) and positive (N=15) evoked responses**
 
+Entire amygdala
 ```{r}
 summary(lm(abs(df.ZAP$left_amygdala.vlPFCTMS) ~ df.ZAP$FD_mean_5*df.ZAP$left_amygdala_sign.vlPFCTMS + df.ZAP$age))
 ```
