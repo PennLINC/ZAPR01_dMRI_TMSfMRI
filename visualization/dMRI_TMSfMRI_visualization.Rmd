@@ -93,7 +93,7 @@ scale_y_continuous(limits = c(-.725,.55), breaks = c(-.6,-.4,-.2,.2,.4,.6)) +
 geom_hline(yintercept=0, size = 0.5)
 ```
 
-**FIGURE S1: TMS Evoked Responses Within Amygdala Subdivisions**
+**FIGURE S1: TMS Effects in Amygdala Subdivisions.**
 
 Figure S1A
 
@@ -135,6 +135,36 @@ jpeg("../../Figures/Images/LeftAmygdala_Subdivisions_CorrelationMatrix.jpg", uni
 ggcorrplot(ER.corr, method = "square", type = "upper", show.legend = FALSE, show.diag = FALSE, lab = TRUE, lab_size = 8, lab_col = "black", colors = c("#9ab5e3", "white", "#324280"), outline.color=c("white"),  ggtheme = theme_classic())
 ```
 
+Figure S1C
+
+```{r}
+FD_agecorrected <- lm(df.ZAP$FD_mean_5 ~ df.ZAP$age)
+plotdata <- data.frame(FD_agecorrected$residuals, df.ZAP$left_basolateral_amygdala.vlPFCTMS)
+plotdata <- plotdata %>% mutate(basolateral_sign = case_when(df.ZAP.left_basolateral_amygdala.vlPFCTMS < 0 ~ -1, df.ZAP.left_basolateral_amygdala.vlPFCTMS > 0 ~ 1))
+plotdata$basolateral_sign <- as.factor(plotdata$basolateral_sign)
+
+jpeg("../../Figures/Images/BasolateralEvokedResponse_FiberDensity_Scatterplot.jpg", units="in", width=7.6, height=6.5, res=800)
+
+ggplot(plotdata, aes(y=abs(df.ZAP.left_basolateral_amygdala.vlPFCTMS), x=FD_agecorrected.residuals, )) +
+geom_point(aes(y=abs(df.ZAP.left_basolateral_amygdala.vlPFCTMS), x=FD_agecorrected.residuals, color = basolateral_sign, fill = basolateral_sign), pch = 21, size = 4.5, stroke = .5) +
+scale_color_manual(values=c("white","white")) +
+scale_fill_manual(values=c("#66467d","#cab2db")) +
+labs(y="\nLeft Basolateral Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
+geom_smooth(method='lm', se=TRUE, fill=alpha(c("gray70"),.7), col="black") +
+theme(
+text = element_text(size = 10),
+axis.title.x=element_blank(),
+axis.title.y=element_blank(),
+legend.position = "none",
+axis.line = element_line(color = "black"),
+axis.text = element_text(family="Arial",size=28, color = "black"),
+axis.line.x = element_line(colour = 'black', size=.6, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=.6, linetype='solid'),
+panel.background=element_blank()) +
+scale_y_continuous(limits = c(0,0.7)) +
+scale_x_continuous(limits = c(-0.06,0.08), breaks = c(-0.05, 0, 0.05))
+```
+
 **FIGURE 4: vlPFC-Amygdala White Matter Pathway Fiber Density Impacts Subcortical TMS Evoked Responses**
 
 Figure 4A
@@ -173,7 +203,7 @@ geom_point(aes(y=df.ZAP.left_amygdala.vlPFCTMS, x=FD_agecorrected.residuals, col
 scale_color_manual(values=c("#66467d","#cab2db")) +
 scale_fill_manual(values=c("#66467d","#cab2db")) +
 labs(y="\nLeft Amygdala Evoked Response Magnitude\n", x="\nPathway Fiber Density\n") +
-geom_smooth(method='lm', se=FALSE, size=2,  fullrange = T, aes(color=df.ZAP.left_amygdala_sign.vlPFCTMS)) +
+geom_smooth(method='lm', se=TRUE, size=2,  fullrange = T, aes(color=df.ZAP.left_amygdala_sign.vlPFCTMS)) +
 theme(
 axis.title.x=element_blank(),
 axis.title.y=element_blank(),
